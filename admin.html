@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotel Aurora - Panel Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #14100d;
+      --bg-soft: #1d1713;
+      --panel: rgba(26, 21, 17, 0.88);
+      --panel-strong: #211a15;
+      --line: rgba(194, 160, 105, 0.18);
+      --line-strong: rgba(194, 160, 105, 0.35);
+      --gold: #c2a069;
+      --gold-soft: #e1c08a;
+      --text: #f3ebdf;
+      --muted: #a99884;
+      --success: #6fa67d;
+      --danger: #c56b57;
+      --warning: #d1aa57;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "DM Sans", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(194,160,105,0.14), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(194,160,105,0.08), transparent 24%),
+        linear-gradient(180deg, #15110d 0%, #0f0c09 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+
+    .shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero-card, .panel, .auth-gate {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero-card {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(140deg, rgba(194,160,105,0.14), transparent 42%, transparent 62%, rgba(194,160,105,0.08));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold);
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold));
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2.2rem, 5vw, 3.7rem);
+      font-weight: 500;
+      line-height: 1.02;
+      letter-spacing: .04em;
+    }
+
+    h1 em, h2 em { color: var(--gold-soft); font-style: italic; }
+
+    .hero-copy {
+      max-width: 680px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .hero-actions, .hero-side-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .hero-side {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .admin-card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .admin-name {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2rem;
+      margin: 0 0 4px;
+    }
+
+    .admin-meta {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .btn {
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 11px 18px;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--gold);
+      color: #fff7ea;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      color: #1b140e;
+      border-color: transparent;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      color: #1b140e;
+      box-shadow: 0 12px 28px rgba(194, 160, 105, 0.28);
+    }
+
+    .btn-danger {
+      border-color: rgba(197, 107, 87, 0.4);
+      color: #ffd7cf;
+    }
+
+    .status-bar {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      line-height: 1.55;
+    }
+
+    .status-bar.show { display: block; }
+    .status-bar.success {
+      background: rgba(111, 166, 125, 0.12);
+      border-color: rgba(111, 166, 125, 0.34);
+      color: #d8f0dd;
+    }
+
+    .status-bar.error {
+      background: rgba(197, 107, 87, 0.12);
+      border-color: rgba(197, 107, 87, 0.34);
+      color: #ffd7cf;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .stat {
+      padding: 18px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2rem;
+      color: var(--gold-soft);
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    .editor-card {
+      margin-bottom: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .editor-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .editor-title {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+
+    .editor-form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .editor-form-grid .full {
+      grid-column: 1 / -1;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: var(--panel-strong);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      min-height: 44px;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 96px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2rem;
+      font-weight: 500;
+    }
+
+    .panel-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      background: rgba(255,255,255,0.015);
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      font-size: 11px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .cell-stack {
+      display: grid;
+      gap: 4px;
+    }
+
+    .cell-main { color: var(--text); }
+    .cell-sub { color: var(--muted); font-size: 12px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 96px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border: 1px solid var(--line);
+    }
+
+    .tag.pending { color: #ffe3ab; background: rgba(209,170,87,.12); border-color: rgba(209,170,87,.35); }
+    .tag.active, .tag.confirmed, .tag.paid, .tag.available { color: #daf0df; background: rgba(111,166,125,.12); border-color: rgba(111,166,125,.35); }
+    .tag.cancelled, .tag.archived, .tag.inactive, .tag.unavailable { color: #ffd7cf; background: rgba(197,107,87,.12); border-color: rgba(197,107,87,.35); }
+    .tag.admin { color: #1b140e; background: linear-gradient(135deg, var(--gold), var(--gold-soft)); border-color: transparent; }
+
+    .inline-form {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .inline-form input,
+    .inline-form select {
+      background: var(--panel-strong);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 9px 10px;
+      min-height: 40px;
+    }
+
+    .inline-form input[type="number"] { width: 110px; }
+    .inline-form label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .inline-form button {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line-strong);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    .inline-form button:hover {
+      border-color: var(--gold);
+      background: rgba(194,160,105,0.08);
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .row-actions button {
+      min-height: 38px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line-strong);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .row-actions .danger {
+      border-color: rgba(197,107,87,.35);
+      color: #ffd7cf;
+    }
+
+    .auth-gate {
+      max-width: 720px;
+      margin: 64px auto;
+      padding: 30px;
+      display: none;
+    }
+
+    .auth-gate.show { display: block; }
+    .auth-gate h2 {
+      margin: 0 0 8px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2.3rem;
+      font-weight: 500;
+    }
+
+    .auth-gate p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 18px;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1180px) {
+      .hero { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 720px) {
+      .shell { padding: 18px 14px 34px; }
+      .hero-card, .hero-side, .panel, .auth-gate { padding: 18px; border-radius: 18px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .panel-header { align-items: start; flex-direction: column; }
+      .hero-actions, .hero-side-actions { flex-direction: column; }
+      .hero-actions .btn, .hero-side-actions .btn { width: 100%; }
+      .editor-form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell hidden" id="adminShell">
+    <section class="hero">
+      <article class="hero-card">
+        <div class="eyebrow">Gestion Interna</div>
+        <h1>Panel <em>Administrativo</em> Hotel Aurora</h1>
+        <p class="hero-copy">
+          Centro interno para controlar usuarios, reservas, habitaciones y anuncios desde una sola vista. Este panel consume la API protegida de administracion y permite cambios rapidos sin tocar la base manualmente.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" type="button" id="refreshBtn">Actualizar panel</button>
+          <a class="btn" href="index.html">Volver al sitio</a>
+          <a class="btn" href="auth.html">Ir a acceso</a>
+        </div>
+      </article>
+
+      <aside class="hero-card hero-side">
+        <div>
+          <div class="admin-card-title">Sesion actual</div>
+          <div class="admin-name" id="adminName">Administrador</div>
+          <div class="admin-meta" id="adminMeta">Cargando datos de sesion...</div>
+        </div>
+        <div class="hero-side-actions">
+          <a class="btn" href="#usersPanel">Usuarios</a>
+          <a class="btn" href="#reservationsPanel">Reservas</a>
+          <a class="btn" href="#roomsPanel">Habitaciones</a>
+          <a class="btn" href="#adsPanel">Anuncios</a>
+          <button class="btn btn-danger" type="button" id="logoutBtn">Cerrar sesion</button>
+        </div>
+      </aside>
+    </section>
+
+    <div class="status-bar" id="statusBar"></div>
+
+    <section class="stats-grid" id="statsGrid"></section>
+
+    <section class="content">
+      <article class="panel" id="usersPanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Usuarios</h2>
+            <p class="panel-subtitle">Promueva administradores, active o desactive cuentas y supervise el acceso al sistema.</p>
+          </div>
+          <div class="pill" id="usersCount">0 usuarios</div>
+        </div>
+        <div class="table-wrap" id="usersWrap"></div>
+      </article>
+
+      <article class="panel" id="reservationsPanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Reservas</h2>
+            <p class="panel-subtitle">Revise el estado operativo de las reservas y actualice su seguimiento interno.</p>
+          </div>
+          <div class="pill" id="reservationsCount">0 reservas</div>
+        </div>
+        <div class="editor-card">
+          <div class="editor-head">
+            <h3 class="editor-title" id="reservationEditorTitle">Nueva reserva</h3>
+            <button class="btn" type="button" id="reservationResetBtn">Limpiar formulario</button>
+          </div>
+          <form id="reservationForm">
+            <input type="hidden" id="reservation-id" />
+            <div class="editor-form-grid">
+              <div class="field">
+                <label for="reservation-first-name">Nombre</label>
+                <input id="reservation-first-name" required />
+              </div>
+              <div class="field">
+                <label for="reservation-last-name">Apellido</label>
+                <input id="reservation-last-name" required />
+              </div>
+              <div class="field">
+                <label for="reservation-email">Correo</label>
+                <input id="reservation-email" type="email" required />
+              </div>
+              <div class="field">
+                <label for="reservation-phone">Telefono</label>
+                <input id="reservation-phone" />
+              </div>
+              <div class="field">
+                <label for="reservation-country">Pais</label>
+                <input id="reservation-country" required />
+              </div>
+              <div class="field">
+                <label for="reservation-document-id">Documento</label>
+                <input id="reservation-document-id" required />
+              </div>
+              <div class="field">
+                <label for="reservation-room">Habitacion</label>
+                <select id="reservation-room" required></select>
+              </div>
+              <div class="field">
+                <label for="reservation-status">Estado</label>
+                <select id="reservation-status">
+                  <option value="pending">pending</option>
+                  <option value="confirmed">confirmed</option>
+                  <option value="paid">paid</option>
+                  <option value="cancelled">cancelled</option>
+                  <option value="completed">completed</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="reservation-travel-reason">Motivo</label>
+                <input id="reservation-travel-reason" />
+              </div>
+              <div class="field">
+                <label for="reservation-check-in">Check-in</label>
+                <input id="reservation-check-in" type="date" required />
+              </div>
+              <div class="field">
+                <label for="reservation-check-out">Check-out</label>
+                <input id="reservation-check-out" type="date" required />
+              </div>
+              <div class="field">
+                <label for="reservation-adults">Adultos</label>
+                <input id="reservation-adults" type="number" min="1" value="1" required />
+              </div>
+              <div class="field">
+                <label for="reservation-children">Ninos</label>
+                <input id="reservation-children" type="number" min="0" value="0" />
+              </div>
+              <div class="field full">
+                <label for="reservation-special-requests">Solicitudes especiales</label>
+                <textarea id="reservation-special-requests"></textarea>
+              </div>
+              <div class="field full">
+                <label for="reservation-services">Servicios adicionales (JSON)</label>
+                <textarea id="reservation-services" placeholder='[{"name":"Spa","price":25},{"name":"Transporte","price":15}]'></textarea>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-primary" type="submit" id="reservationSubmitBtn">Crear reserva</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-wrap" id="reservationsWrap"></div>
+      </article>
+
+      <article class="panel" id="roomsPanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Habitaciones</h2>
+            <p class="panel-subtitle">Controle disponibilidad y precio por noche sin salir del panel.</p>
+          </div>
+          <div class="pill" id="roomsCount">0 habitaciones</div>
+        </div>
+        <div class="editor-card">
+          <div class="editor-head">
+            <h3 class="editor-title" id="roomEditorTitle">Nueva habitacion</h3>
+            <button class="btn" type="button" id="roomResetBtn">Limpiar formulario</button>
+          </div>
+          <form id="roomForm">
+            <input type="hidden" id="room-id" />
+            <div class="editor-form-grid">
+              <div class="field">
+                <label for="room-name">Nombre</label>
+                <input id="room-name" required />
+              </div>
+              <div class="field">
+                <label for="room-slug">Slug</label>
+                <input id="room-slug" />
+              </div>
+              <div class="field">
+                <label for="room-category">Categoria</label>
+                <select id="room-category" required>
+                  <option value="estandar">estandar</option>
+                  <option value="deluxe">deluxe</option>
+                  <option value="suite">suite</option>
+                  <option value="presidencial">presidencial</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="room-price">Precio</label>
+                <input id="room-price" type="number" step="0.01" min="0" required />
+              </div>
+              <div class="field">
+                <label for="room-capacity">Capacidad</label>
+                <input id="room-capacity" type="number" min="1" required />
+              </div>
+              <div class="field">
+                <label for="room-size">Tamano m2</label>
+                <input id="room-size" type="number" min="1" required />
+              </div>
+              <div class="field">
+                <label for="room-bed-type">Tipo de cama</label>
+                <input id="room-bed-type" required />
+              </div>
+              <div class="field">
+                <label for="room-image">Imagen destacada</label>
+                <input id="room-image" />
+              </div>
+              <div class="field">
+                <label for="room-available">Disponibilidad</label>
+                <select id="room-available">
+                  <option value="true">disponible</option>
+                  <option value="false">no disponible</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="room-description">Descripcion</label>
+                <textarea id="room-description" required></textarea>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-primary" type="submit" id="roomSubmitBtn">Crear habitacion</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-wrap" id="roomsWrap"></div>
+      </article>
+
+      <article class="panel" id="adsPanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Anuncios</h2>
+            <p class="panel-subtitle">Gestione activacion, cobro y visibilidad de anuncios comerciales.</p>
+          </div>
+          <div class="pill" id="adsCount">0 anuncios</div>
+        </div>
+        <div class="editor-card">
+          <div class="editor-head">
+            <h3 class="editor-title" id="adEditorTitle">Nuevo anuncio</h3>
+            <button class="btn" type="button" id="adResetBtn">Limpiar formulario</button>
+          </div>
+          <form id="adForm">
+            <input type="hidden" id="ad-id" />
+            <div class="editor-form-grid">
+              <div class="field">
+                <label for="ad-title">Titulo</label>
+                <input id="ad-title" required />
+              </div>
+              <div class="field">
+                <label for="ad-company">Empresa</label>
+                <input id="ad-company" required />
+              </div>
+              <div class="field">
+                <label for="ad-plan">Plan</label>
+                <select id="ad-plan" required></select>
+              </div>
+              <div class="field">
+                <label for="ad-contact-name">Contacto</label>
+                <input id="ad-contact-name" required />
+              </div>
+              <div class="field">
+                <label for="ad-contact-email">Correo</label>
+                <input id="ad-contact-email" type="email" required />
+              </div>
+              <div class="field">
+                <label for="ad-contact-phone">Telefono</label>
+                <input id="ad-contact-phone" required />
+              </div>
+              <div class="field">
+                <label for="ad-category">Categoria</label>
+                <input id="ad-category" required />
+              </div>
+              <div class="field">
+                <label for="ad-status">Estado</label>
+                <select id="ad-status">
+                  <option value="pending_payment">pending_payment</option>
+                  <option value="active">active</option>
+                  <option value="paused">paused</option>
+                  <option value="archived">archived</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="ad-paid">Cobro</label>
+                <select id="ad-paid">
+                  <option value="false">pendiente</option>
+                  <option value="true">pagado</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label for="ad-description">Descripcion</label>
+                <textarea id="ad-description"></textarea>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn btn-primary" type="submit" id="adSubmitBtn">Crear anuncio</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-wrap" id="adsWrap"></div>
+      </article>
+    </section>
+  </main>
+
+  <section class="auth-gate" id="authGate">
+    <div class="eyebrow">Acceso requerido</div>
+    <h2>Este espacio es solo para administracion interna</h2>
+    <p id="authGateMessage">
+      Necesita iniciar sesion con una cuenta que tenga rol <strong>admin</strong> para usar el panel.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="auth.html">Iniciar sesion</a>
+      <a class="btn" href="index.html">Volver al inicio</a>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      const API_BASE_URL = 'http://127.0.0.1:5000/api';
+      const token = localStorage.getItem('hotelAuroraToken');
+      const storedUser = JSON.parse(localStorage.getItem('hotelAuroraUser') || 'null');
+      const adminShell = document.getElementById('adminShell');
+      const authGate = document.getElementById('authGate');
+      const authGateMessage = document.getElementById('authGateMessage');
+      const statusBar = document.getElementById('statusBar');
+
+      const state = {
+        user: storedUser,
+        stats: null,
+        users: [],
+        reservations: [],
+        rooms: [],
+        ads: [],
+        adPlans: []
+      };
+
+      function formatMoney(value) {
+        return '$' + Number(value || 0).toFixed(2);
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatDate(value) {
+        if (!value) return 'Sin fecha';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleString('es-BO', {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
+      function statusClass(status) {
+        const normalized = String(status || '').toLowerCase();
+        if (['pending', 'pending_payment'].includes(normalized)) return 'pending';
+        if (['active', 'confirmed', 'paid', 'completed', 'available'].includes(normalized)) return 'active';
+        if (['cancelled', 'archived', 'inactive', 'unavailable', 'paused'].includes(normalized)) return 'cancelled';
+        if (normalized === 'admin') return 'admin';
+        return '';
+      }
+
+      function setStatus(message, type) {
+        statusBar.className = 'status-bar show ' + (type || 'success');
+        statusBar.textContent = message;
+      }
+
+      function clearStatus() {
+        statusBar.className = 'status-bar';
+        statusBar.textContent = '';
+      }
+
+      function showGate(message) {
+        authGate.classList.add('show');
+        adminShell.classList.add('hidden');
+        authGateMessage.innerHTML = message;
+      }
+
+      function showPanel() {
+        authGate.classList.remove('show');
+        adminShell.classList.remove('hidden');
+      }
+
+      async function apiRequest(path, options) {
+        const response = await fetch(API_BASE_URL + path, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          },
+          ...options
+        });
+
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) {
+          const message = payload && payload.message ? payload.message : 'No se pudo completar la solicitud.';
+          throw new Error(message);
+        }
+        return payload;
+      }
+
+      function renderStats() {
+        const stats = state.stats || {};
+        const cards = [
+          { label: 'Usuarios', value: stats.users_total || 0 },
+          { label: 'Habitaciones libres', value: stats.rooms_available || 0 },
+          { label: 'Reservas pendientes', value: stats.reservations_pending || 0 },
+          { label: 'Anuncios activos', value: stats.ads_active || 0 },
+          { label: 'Ingresos', value: formatMoney(stats.revenue_total || 0) }
+        ];
+
+        document.getElementById('statsGrid').innerHTML = cards.map(card => `
+          <div class="stat">
+            <div class="stat-label">${escapeHtml(card.label)}</div>
+            <div class="stat-value">${escapeHtml(card.value)}</div>
+          </div>
+        `).join('');
+      }
+
+      function renderHeaderUser() {
+        const user = state.user || {};
+        document.getElementById('adminName').textContent = (user.first_name || 'Admin') + ' ' + (user.last_name || '');
+        document.getElementById('adminMeta').innerHTML = `
+          <div>${escapeHtml(user.email || 'Sin correo')}</div>
+          <div>Rol: <strong>${escapeHtml(user.role || 'guest')}</strong></div>
+        `;
+      }
+
+      function renderReservationRoomOptions() {
+        const select = document.getElementById('reservation-room');
+        select.innerHTML = state.rooms.map(room => `
+          <option value="${room.id}">${escapeHtml(room.name)} - ${escapeHtml(room.category)} - ${escapeHtml(formatMoney(room.price_per_night))}</option>
+        `).join('');
+      }
+
+      function resetReservationForm() {
+        document.getElementById('reservation-id').value = '';
+        document.getElementById('reservation-first-name').value = '';
+        document.getElementById('reservation-last-name').value = '';
+        document.getElementById('reservation-email').value = '';
+        document.getElementById('reservation-phone').value = '';
+        document.getElementById('reservation-country').value = '';
+        document.getElementById('reservation-document-id').value = '';
+        if (state.rooms.length) {
+          document.getElementById('reservation-room').value = String(state.rooms[0].id);
+        }
+        document.getElementById('reservation-status').value = 'pending';
+        document.getElementById('reservation-travel-reason').value = '';
+        document.getElementById('reservation-check-in').value = '';
+        document.getElementById('reservation-check-out').value = '';
+        document.getElementById('reservation-adults').value = '1';
+        document.getElementById('reservation-children').value = '0';
+        document.getElementById('reservation-special-requests').value = '';
+        document.getElementById('reservation-services').value = '';
+        document.getElementById('reservationEditorTitle').textContent = 'Nueva reserva';
+        document.getElementById('reservationSubmitBtn').textContent = 'Crear reserva';
+      }
+
+      function fillReservationForm(reservationId) {
+        const reservation = state.reservations.find(item => item.id === Number(reservationId));
+        if (!reservation) return;
+        document.getElementById('reservation-id').value = reservation.id;
+        document.getElementById('reservation-first-name').value = reservation.guest_first_name || '';
+        document.getElementById('reservation-last-name').value = reservation.guest_last_name || '';
+        document.getElementById('reservation-email').value = reservation.guest_email || '';
+        document.getElementById('reservation-phone').value = reservation.guest_phone || '';
+        document.getElementById('reservation-country').value = reservation.country || '';
+        document.getElementById('reservation-document-id').value = reservation.document_id || '';
+        document.getElementById('reservation-room').value = String(reservation.room_id || '');
+        document.getElementById('reservation-status').value = reservation.status || 'pending';
+        document.getElementById('reservation-travel-reason').value = reservation.travel_reason || '';
+        document.getElementById('reservation-check-in').value = reservation.check_in || '';
+        document.getElementById('reservation-check-out').value = reservation.check_out || '';
+        document.getElementById('reservation-adults').value = reservation.adults || 1;
+        document.getElementById('reservation-children').value = reservation.children || 0;
+        document.getElementById('reservation-special-requests').value = reservation.special_requests || '';
+        document.getElementById('reservation-services').value = JSON.stringify(reservation.services || []);
+        document.getElementById('reservationEditorTitle').textContent = 'Editar reserva';
+        document.getElementById('reservationSubmitBtn').textContent = 'Guardar cambios';
+        document.getElementById('reservationsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function resetRoomForm() {
+        document.getElementById('room-id').value = '';
+        document.getElementById('room-name').value = '';
+        document.getElementById('room-slug').value = '';
+        document.getElementById('room-category').value = 'estandar';
+        document.getElementById('room-price').value = '';
+        document.getElementById('room-capacity').value = '';
+        document.getElementById('room-size').value = '';
+        document.getElementById('room-bed-type').value = '';
+        document.getElementById('room-image').value = '';
+        document.getElementById('room-available').value = 'true';
+        document.getElementById('room-description').value = '';
+        document.getElementById('roomEditorTitle').textContent = 'Nueva habitacion';
+        document.getElementById('roomSubmitBtn').textContent = 'Crear habitacion';
+      }
+
+      function fillRoomForm(roomId) {
+        const room = state.rooms.find(item => item.id === Number(roomId));
+        if (!room) return;
+        document.getElementById('room-id').value = room.id;
+        document.getElementById('room-name').value = room.name || '';
+        document.getElementById('room-slug').value = room.slug || '';
+        document.getElementById('room-category').value = room.category || 'estandar';
+        document.getElementById('room-price').value = room.price_per_night || 0;
+        document.getElementById('room-capacity').value = room.capacity || 1;
+        document.getElementById('room-size').value = room.size_m2 || 1;
+        document.getElementById('room-bed-type').value = room.bed_type || '';
+        document.getElementById('room-image').value = room.featured_image || '';
+        document.getElementById('room-available').value = room.is_available ? 'true' : 'false';
+        document.getElementById('room-description').value = room.description || '';
+        document.getElementById('roomEditorTitle').textContent = 'Editar habitacion';
+        document.getElementById('roomSubmitBtn').textContent = 'Guardar cambios';
+        document.getElementById('roomsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function renderAdPlanOptions() {
+        const select = document.getElementById('ad-plan');
+        select.innerHTML = state.adPlans.map(plan => `
+          <option value="${plan.id}">${escapeHtml(plan.name)} - ${escapeHtml(formatMoney(plan.price))}</option>
+        `).join('');
+      }
+
+      function resetAdForm() {
+        document.getElementById('ad-id').value = '';
+        document.getElementById('ad-title').value = '';
+        document.getElementById('ad-company').value = '';
+        if (state.adPlans.length) {
+          document.getElementById('ad-plan').value = String(state.adPlans[0].id);
+        }
+        document.getElementById('ad-contact-name').value = '';
+        document.getElementById('ad-contact-email').value = '';
+        document.getElementById('ad-contact-phone').value = '';
+        document.getElementById('ad-category').value = '';
+        document.getElementById('ad-status').value = 'pending_payment';
+        document.getElementById('ad-paid').value = 'false';
+        document.getElementById('ad-description').value = '';
+        document.getElementById('adEditorTitle').textContent = 'Nuevo anuncio';
+        document.getElementById('adSubmitBtn').textContent = 'Crear anuncio';
+      }
+
+      function fillAdForm(adId) {
+        const ad = state.ads.find(item => item.id === Number(adId));
+        if (!ad) return;
+        document.getElementById('ad-id').value = ad.id;
+        document.getElementById('ad-title').value = ad.title || '';
+        document.getElementById('ad-company').value = ad.company_name || '';
+        document.getElementById('ad-plan').value = String(ad.ad_plan_id || (state.adPlans[0] ? state.adPlans[0].id : ''));
+        document.getElementById('ad-contact-name').value = ad.contact_name || '';
+        document.getElementById('ad-contact-email').value = ad.contact_email || '';
+        document.getElementById('ad-contact-phone').value = ad.contact_phone || '';
+        document.getElementById('ad-category').value = ad.category || '';
+        document.getElementById('ad-status').value = ad.status || 'pending_payment';
+        document.getElementById('ad-paid').value = ad.is_paid ? 'true' : 'false';
+        document.getElementById('ad-description').value = ad.description || '';
+        document.getElementById('adEditorTitle').textContent = 'Editar anuncio';
+        document.getElementById('adSubmitBtn').textContent = 'Guardar cambios';
+        document.getElementById('adsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function renderUsers() {
+        document.getElementById('usersCount').textContent = state.users.length + ' usuarios';
+        if (!state.users.length) {
+          document.getElementById('usersWrap').innerHTML = '<div class="empty">No hay usuarios cargados.</div>';
+          return;
+        }
+
+        document.getElementById('usersWrap').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Rol actual</th>
+                <th>Estado</th>
+                <th>Alta</th>
+                <th>Gestion</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.users.map(user => `
+                <tr>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="cell-main">${escapeHtml(user.first_name + ' ' + user.last_name)}</span>
+                      <span class="cell-sub">${escapeHtml(user.email)}</span>
+                    </div>
+                  </td>
+                  <td><span class="tag ${statusClass(user.role)}">${escapeHtml(user.role)}</span></td>
+                  <td><span class="tag ${user.is_active ? 'active' : 'inactive'}">${user.is_active ? 'activo' : 'inactivo'}</span></td>
+                  <td>${escapeHtml(formatDate(user.created_at))}</td>
+                  <td>
+                    <form class="inline-form" data-user-form="${user.id}">
+                      <select name="role">
+                        <option value="guest" ${user.role === 'guest' ? 'selected' : ''}>guest</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>admin</option>
+                      </select>
+                      <label>
+                        <input type="checkbox" name="is_active" ${user.is_active ? 'checked' : ''} />
+                        activo
+                      </label>
+                      <button type="submit">Guardar</button>
+                    </form>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+
+        document.querySelectorAll('[data-user-form]').forEach(form => {
+          form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const userId = form.getAttribute('data-user-form');
+            const role = form.querySelector('[name="role"]').value;
+            const isActive = form.querySelector('[name="is_active"]').checked;
+            await saveUser(userId, role, isActive);
+          });
+        });
+      }
+
+      function renderReservations() {
+        document.getElementById('reservationsCount').textContent = state.reservations.length + ' reservas';
+        if (!state.reservations.length) {
+          document.getElementById('reservationsWrap').innerHTML = '<div class="empty">No hay reservas registradas.</div>';
+          return;
+        }
+
+        document.getElementById('reservationsWrap').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Codigo</th>
+                <th>Huesped</th>
+                <th>Habitacion</th>
+                <th>Estadia</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Gestion</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.reservations.map(item => `
+                <tr>
+                  <td>${escapeHtml(item.reservation_code)}</td>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="cell-main">${escapeHtml(item.guest_name)}</span>
+                      <span class="cell-sub">${escapeHtml(item.guest_email || 'Sin correo')}</span>
+                    </div>
+                  </td>
+                  <td>${escapeHtml(item.room_name || 'Sin habitacion')}</td>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="cell-main">${escapeHtml(item.check_in || 'Sin fecha')} - ${escapeHtml(item.check_out || 'Sin fecha')}</span>
+                      <span class="cell-sub">${item.adults} adultos / ${item.children} ninos</span>
+                    </div>
+                  </td>
+                  <td>${escapeHtml(formatMoney(item.total))}</td>
+                  <td><span class="tag ${statusClass(item.status)}">${escapeHtml(item.status)}</span></td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" data-reservation-edit="${item.id}">Editar</button>
+                      <button type="button" data-reservation-quick-status="${item.id}">Estado rapido</button>
+                      <button type="button" class="danger" data-reservation-delete="${item.id}">Eliminar</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+
+        document.querySelectorAll('[data-reservation-edit]').forEach(button => {
+          button.addEventListener('click', function () {
+            fillReservationForm(button.getAttribute('data-reservation-edit'));
+          });
+        });
+
+        document.querySelectorAll('[data-reservation-quick-status]').forEach(button => {
+          button.addEventListener('click', async function () {
+            const reservationId = button.getAttribute('data-reservation-quick-status');
+            const current = state.reservations.find(item => item.id === Number(reservationId));
+            const status = window.prompt('Nuevo estado: pending, confirmed, paid, cancelled, completed', current ? current.status : 'pending');
+            if (!status) return;
+            await saveReservationStatus(reservationId, status.trim().toLowerCase());
+          });
+        });
+
+        document.querySelectorAll('[data-reservation-delete]').forEach(button => {
+          button.addEventListener('click', async function () {
+            const reservationId = button.getAttribute('data-reservation-delete');
+            const reservation = state.reservations.find(item => item.id === Number(reservationId));
+            const confirmed = window.confirm('Se eliminara la reserva "' + (reservation ? reservation.reservation_code : '') + '". Desea continuar?');
+            if (!confirmed) return;
+            await deleteReservation(reservationId);
+          });
+        });
+      }
+
+      function renderRooms() {
+        document.getElementById('roomsCount').textContent = state.rooms.length + ' habitaciones';
+        if (!state.rooms.length) {
+          document.getElementById('roomsWrap').innerHTML = '<div class="empty">No hay habitaciones registradas.</div>';
+          return;
+        }
+
+        document.getElementById('roomsWrap').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Habitacion</th>
+                <th>Slug</th>
+                <th>Categoria</th>
+                <th>Capacidad</th>
+                <th>Precio</th>
+                <th>Disponibilidad</th>
+                <th>Gestion</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.rooms.map(room => `
+                <tr>
+                  <td>${escapeHtml(room.name)}</td>
+                  <td>${escapeHtml(room.slug)}</td>
+                  <td>${escapeHtml(room.category)}</td>
+                  <td>${escapeHtml(room.capacity)}</td>
+                  <td>${escapeHtml(formatMoney(room.price_per_night))}</td>
+                  <td><span class="tag ${room.is_available ? 'available' : 'unavailable'}">${room.is_available ? 'disponible' : 'cerrada'}</span></td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" data-room-edit="${room.id}">Editar</button>
+                      <button type="button" class="danger" data-room-delete="${room.id}">Eliminar</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+
+        document.querySelectorAll('[data-room-edit]').forEach(button => {
+          button.addEventListener('click', function () {
+            fillRoomForm(button.getAttribute('data-room-edit'));
+          });
+        });
+
+        document.querySelectorAll('[data-room-delete]').forEach(button => {
+          button.addEventListener('click', async function () {
+            const roomId = button.getAttribute('data-room-delete');
+            const room = state.rooms.find(item => item.id === Number(roomId));
+            const confirmed = window.confirm('Se eliminara la habitacion "' + (room ? room.name : '') + '". Desea continuar?');
+            if (!confirmed) return;
+            await deleteRoom(roomId);
+          });
+        });
+      }
+
+      function renderAds() {
+        document.getElementById('adsCount').textContent = state.ads.length + ' anuncios';
+        if (!state.ads.length) {
+          document.getElementById('adsWrap').innerHTML = '<div class="empty">No hay anuncios registrados.</div>';
+          return;
+        }
+
+        document.getElementById('adsWrap').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Anuncio</th>
+                <th>Empresa</th>
+                <th>Plan</th>
+                <th>Estado</th>
+                <th>Cobro</th>
+                <th>Vigencia</th>
+                <th>Gestion</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${state.ads.map(ad => `
+                <tr>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="cell-main">${escapeHtml(ad.title)}</span>
+                      <span class="cell-sub">${escapeHtml(ad.category || 'sin categoria')}</span>
+                    </div>
+                  </td>
+                  <td>${escapeHtml(ad.company_name)}</td>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="cell-main">${escapeHtml(ad.plan_name || 'Sin plan')}</span>
+                      <span class="cell-sub">${escapeHtml(formatMoney(ad.plan_price || 0))}</span>
+                    </div>
+                  </td>
+                  <td><span class="tag ${statusClass(ad.status)}">${escapeHtml(ad.status)}</span></td>
+                  <td><span class="tag ${ad.is_paid ? 'paid' : 'pending'}">${ad.is_paid ? 'pagado' : 'pendiente'}</span></td>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="cell-main">${escapeHtml(formatDate(ad.starts_at))}</span>
+                      <span class="cell-sub">${escapeHtml(formatDate(ad.ends_at))}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" data-ad-edit="${ad.id}">Editar</button>
+                      <button type="button" class="danger" data-ad-delete="${ad.id}">Eliminar</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+
+        document.querySelectorAll('[data-ad-edit]').forEach(button => {
+          button.addEventListener('click', function () {
+            fillAdForm(button.getAttribute('data-ad-edit'));
+          });
+        });
+
+        document.querySelectorAll('[data-ad-delete]').forEach(button => {
+          button.addEventListener('click', async function () {
+            const adId = button.getAttribute('data-ad-delete');
+            const ad = state.ads.find(item => item.id === Number(adId));
+            const confirmed = window.confirm('Se eliminara el anuncio "' + (ad ? ad.title : '') + '". Desea continuar?');
+            if (!confirmed) return;
+            await deleteAd(adId);
+          });
+        });
+      }
+
+      function renderAll() {
+        renderHeaderUser();
+        renderStats();
+        renderUsers();
+        renderReservations();
+        renderRooms();
+        renderAds();
+      }
+
+      async function loadAll() {
+        clearStatus();
+        const [dashboard, mePayload, users, reservations, rooms, ads, adPlans] = await Promise.all([
+          apiRequest('/admin/dashboard', { method: 'GET' }),
+          apiRequest('/auth/me', { method: 'GET' }),
+          apiRequest('/admin/users', { method: 'GET' }),
+          apiRequest('/admin/reservations', { method: 'GET' }),
+          apiRequest('/admin/rooms', { method: 'GET' }),
+          apiRequest('/admin/ads', { method: 'GET' }),
+          apiRequest('/admin/ad-plans', { method: 'GET' })
+        ]);
+
+        state.user = mePayload.user;
+        localStorage.setItem('hotelAuroraUser', JSON.stringify(mePayload.user));
+        state.stats = dashboard.stats;
+        state.users = users.items || [];
+        state.reservations = reservations.items || [];
+        state.rooms = rooms.items || [];
+        state.ads = ads.items || [];
+        state.adPlans = adPlans.items || [];
+        renderAdPlanOptions();
+        renderReservationRoomOptions();
+        renderAll();
+      }
+
+      async function saveUser(userId, role, isActive) {
+        try {
+          await apiRequest('/admin/users/' + userId, {
+            method: 'PATCH',
+            body: JSON.stringify({ role, is_active: isActive })
+          });
+          setStatus('Usuario actualizado correctamente.', 'success');
+          await loadAll();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function saveReservationStatus(reservationId, status) {
+        try {
+          await apiRequest('/admin/reservations/' + reservationId + '/status', {
+            method: 'PATCH',
+            body: JSON.stringify({ status })
+          });
+          setStatus('Estado de la reserva actualizado.', 'success');
+          await loadAll();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function createReservation(payload) {
+        try {
+          await apiRequest('/admin/reservations', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          setStatus('Reserva creada correctamente.', 'success');
+          await loadAll();
+          resetReservationForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function saveReservation(reservationId, payload) {
+        try {
+          await apiRequest('/admin/reservations/' + reservationId, {
+            method: 'PATCH',
+            body: JSON.stringify(payload)
+          });
+          setStatus('Reserva actualizada correctamente.', 'success');
+          await loadAll();
+          resetReservationForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function deleteReservation(reservationId) {
+        try {
+          await apiRequest('/admin/reservations/' + reservationId, {
+            method: 'DELETE'
+          });
+          setStatus('Reserva eliminada correctamente.', 'success');
+          await loadAll();
+          resetReservationForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function saveRoom(roomId, payload) {
+        try {
+          await apiRequest('/admin/rooms/' + roomId, {
+            method: 'PATCH',
+            body: JSON.stringify(payload)
+          });
+          setStatus('Habitacion actualizada correctamente.', 'success');
+          await loadAll();
+          resetRoomForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function createRoom(payload) {
+        try {
+          await apiRequest('/admin/rooms', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          setStatus('Habitacion creada correctamente.', 'success');
+          await loadAll();
+          resetRoomForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function deleteRoom(roomId) {
+        try {
+          await apiRequest('/admin/rooms/' + roomId, {
+            method: 'DELETE'
+          });
+          setStatus('Habitacion eliminada correctamente.', 'success');
+          await loadAll();
+          resetRoomForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function saveAd(adId, payload) {
+        try {
+          await apiRequest('/admin/ads/' + adId, {
+            method: 'PATCH',
+            body: JSON.stringify(payload)
+          });
+          setStatus('Anuncio actualizado correctamente.', 'success');
+          await loadAll();
+          resetAdForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function createAd(payload) {
+        try {
+          await apiRequest('/admin/ads', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          setStatus('Anuncio creado correctamente.', 'success');
+          await loadAll();
+          resetAdForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function deleteAd(adId) {
+        try {
+          await apiRequest('/admin/ads/' + adId, {
+            method: 'DELETE'
+          });
+          setStatus('Anuncio eliminado correctamente.', 'success');
+          await loadAll();
+          resetAdForm();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      function wireActions() {
+        document.getElementById('refreshBtn').addEventListener('click', async function () {
+          try {
+            await loadAll();
+            setStatus('Panel sincronizado con la API.', 'success');
+          } catch (error) {
+            setStatus(error.message, 'error');
+          }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+          localStorage.removeItem('hotelAuroraToken');
+          localStorage.removeItem('hotelAuroraUser');
+          window.location.href = 'auth.html';
+        });
+
+        document.getElementById('reservationResetBtn').addEventListener('click', resetReservationForm);
+        document.getElementById('roomResetBtn').addEventListener('click', resetRoomForm);
+        document.getElementById('adResetBtn').addEventListener('click', resetAdForm);
+
+        document.getElementById('reservationForm').addEventListener('submit', async function (event) {
+          event.preventDefault();
+          const reservationId = document.getElementById('reservation-id').value;
+          let services = [];
+          const servicesRaw = document.getElementById('reservation-services').value.trim();
+
+          if (servicesRaw) {
+            try {
+              services = JSON.parse(servicesRaw);
+            } catch (error) {
+              setStatus('El campo de servicios debe contener JSON valido.', 'error');
+              return;
+            }
+          }
+
+          const payload = {
+            first_name: document.getElementById('reservation-first-name').value.trim(),
+            last_name: document.getElementById('reservation-last-name').value.trim(),
+            email: document.getElementById('reservation-email').value.trim(),
+            phone: document.getElementById('reservation-phone').value.trim(),
+            country: document.getElementById('reservation-country').value.trim(),
+            document_id: document.getElementById('reservation-document-id').value.trim(),
+            room_id: Number(document.getElementById('reservation-room').value),
+            status: document.getElementById('reservation-status').value,
+            travel_reason: document.getElementById('reservation-travel-reason').value.trim(),
+            check_in: document.getElementById('reservation-check-in').value,
+            check_out: document.getElementById('reservation-check-out').value,
+            adults: Number(document.getElementById('reservation-adults').value),
+            children: Number(document.getElementById('reservation-children').value),
+            special_requests: document.getElementById('reservation-special-requests').value.trim(),
+            services
+          };
+
+          if (reservationId) {
+            await saveReservation(reservationId, payload);
+          } else {
+            await createReservation(payload);
+          }
+        });
+
+        document.getElementById('roomForm').addEventListener('submit', async function (event) {
+          event.preventDefault();
+          const roomId = document.getElementById('room-id').value;
+          const payload = {
+            name: document.getElementById('room-name').value.trim(),
+            slug: document.getElementById('room-slug').value.trim(),
+            category: document.getElementById('room-category').value,
+            description: document.getElementById('room-description').value.trim(),
+            price_per_night: document.getElementById('room-price').value,
+            capacity: document.getElementById('room-capacity').value,
+            size_m2: document.getElementById('room-size').value,
+            bed_type: document.getElementById('room-bed-type').value.trim(),
+            featured_image: document.getElementById('room-image').value.trim(),
+            is_available: document.getElementById('room-available').value === 'true'
+          };
+
+          if (roomId) {
+            await saveRoom(roomId, payload);
+          } else {
+            await createRoom(payload);
+          }
+        });
+
+        document.getElementById('adForm').addEventListener('submit', async function (event) {
+          event.preventDefault();
+          const adId = document.getElementById('ad-id').value;
+          const payload = {
+            title: document.getElementById('ad-title').value.trim(),
+            company_name: document.getElementById('ad-company').value.trim(),
+            ad_plan_id: Number(document.getElementById('ad-plan').value),
+            contact_name: document.getElementById('ad-contact-name').value.trim(),
+            contact_email: document.getElementById('ad-contact-email').value.trim(),
+            contact_phone: document.getElementById('ad-contact-phone').value.trim(),
+            category: document.getElementById('ad-category').value.trim(),
+            status: document.getElementById('ad-status').value,
+            is_paid: document.getElementById('ad-paid').value === 'true',
+            description: document.getElementById('ad-description').value.trim()
+          };
+
+          if (adId) {
+            await saveAd(adId, payload);
+          } else {
+            await createAd(payload);
+          }
+        });
+      }
+
+      async function init() {
+        wireActions();
+
+        if (!token) {
+          showGate('Necesita iniciar sesion con una cuenta que tenga rol <strong>admin</strong> para usar el panel.');
+          return;
+        }
+
+        try {
+          await loadAll();
+          resetReservationForm();
+          resetRoomForm();
+          resetAdForm();
+          if (!state.user || state.user.role !== 'admin') {
+            showGate('Su sesion esta activa, pero esta cuenta no tiene permisos de <strong>admin</strong>. Promuevala desde backend o use otra cuenta.');
+            return;
+          }
+          showPanel();
+        } catch (error) {
+          const forbidden = /admin|permisos/i.test(error.message);
+          showGate(
+            forbidden
+              ? 'La API respondio, pero esta cuenta no tiene permisos de <strong>admin</strong>.'
+              : 'No se pudo cargar el panel. Verifique que el backend este activo y que su sesion siga siendo valida.'
+          );
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

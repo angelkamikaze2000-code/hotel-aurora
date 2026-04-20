@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Aurora – Pago</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream:      #f5f0e8;
+      --cream-dim:  #c9bfad;
+      --gold:       #b8996a;
+      --gold-light: #d4b98a;
+      --gold-dim:   rgba(184,153,106,0.25);
+      --dark:       #12100d;
+      --dark-card:  rgba(20,17,12,0.9);
+      --text-muted: #8a7d6b;
+      --border:     rgba(184,153,106,0.22);
+      --error:      #c0614a;
+      --success:    #5a8a6a;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--cream);overflow-x:hidden;min-height:100vh;}
+
+    /* CURSOR */
+    .cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .15s;}
+    .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(184,153,106,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+
+    /* PARTICLES */
+    .particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .particle{position:absolute;background:var(--gold);border-radius:50%;opacity:0;animation:pRise var(--dur,9s) ease-in infinite var(--delay,0s);left:var(--x,50%);}
+    @keyframes pRise{0%{transform:translateY(100vh) scale(0);opacity:0;}8%{opacity:.4;}92%{opacity:.15;}100%{transform:translateY(-40px) scale(1.4);opacity:0;}}
+
+    /* GRAIN */
+    .grain{position:fixed;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:180px 180px;opacity:.3;pointer-events:none;z-index:1;animation:grainAnim .14s steps(1) infinite;}
+    @keyframes grainAnim{0%{transform:translate(0,0);}14%{transform:translate(-2%,-3%);}28%{transform:translate(3%,1%);}42%{transform:translate(-1%,4%);}57%{transform:translate(4%,-1%);}71%{transform:translate(-3%,2%);}85%{transform:translate(1%,-4%);}}
+
+    /* ORBS */
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;mix-blend-mode:screen;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(184,153,106,.1) 0%,transparent 70%);top:-100px;left:-100px;animation:orbF1 16s ease-in-out infinite;}
+    .orb-2{width:380px;height:380px;background:radial-gradient(circle,rgba(184,153,106,.08) 0%,transparent 70%);bottom:-80px;right:-80px;animation:orbF2 20s ease-in-out infinite;}
+    @keyframes orbF1{0%,100%{transform:translate(0,0);}50%{transform:translate(70px,80px);}}
+    @keyframes orbF2{0%,100%{transform:translate(0,0);}50%{transform:translate(-60px,-70px);}}
+
+    /* NAVBAR */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(12,10,8,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:.2em;text-transform:uppercase;color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.6rem;}
+    .nav-logo span{color:var(--gold-light);font-style:italic;}
+    .nav-diamond{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);animation:dPulse 3s ease-in-out infinite;}
+    @keyframes dPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,153,106,0);}50%{box-shadow:0 0 8px 3px rgba(184,153,106,.5);}}
+    .nav-links{display:flex;align-items:center;gap:2rem;}
+    .nav-links a{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color .25s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.22,1,.36,1);}
+    .nav-links a:hover{color:var(--cream);}
+    .nav-links a:hover::after{transform:scaleX(1);}
+    .nav-cta{padding:.5rem 1.4rem;border:1px solid var(--gold-dim);border-radius:2px;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);text-decoration:none;transition:background .25s,color .25s;}
+    .nav-cta:hover{background:var(--gold);color:var(--dark);}
+    .nav-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+    .nav-burger span{width:24px;height:1px;background:var(--cream);display:block;}
+    .mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:rgba(12,10,8,.97);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:2rem;}
+    .mobile-menu.open{display:flex;animation:fadeIn .3s ease both;}
+    .mobile-menu a{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:.15em;text-transform:uppercase;color:var(--cream);text-decoration:none;}
+    .mobile-menu a:hover{color:var(--gold-light);}
+    .menu-close{position:absolute;top:1.5rem;right:2rem;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;}
+
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+
+    /* PAGE */
+    .page{padding-top:73px;min-height:100vh;position:relative;z-index:2;}
+
+    /* PAGE HERO */
+    .page-hero{position:relative;height:38vh;min-height:240px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .page-hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1600&q=80&fit=crop');background-size:cover;background-position:center;animation:slowZoom 18s ease-in-out infinite alternate;}
+    @keyframes slowZoom{from{transform:scale(1);}to{transform:scale(1.05);}}
+    .page-hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(8,7,5,.88),rgba(18,16,13,.72),rgba(14,12,9,.9));}
+    .page-hero-content{position:relative;z-index:2;text-align:center;padding:0 1.5rem;}
+    .page-hero-eyebrow{font-size:.62rem;letter-spacing:.45em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;gap:.75rem;animation:fadeUp .7s .1s both;}
+    .page-hero-eyebrow::before,.page-hero-eyebrow::after{content:'';height:1px;width:32px;}
+    .page-hero-eyebrow::before{background:linear-gradient(to right,transparent,var(--gold));}
+    .page-hero-eyebrow::after{background:linear-gradient(to left,transparent,var(--gold));}
+    .page-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:300;letter-spacing:.06em;animation:fadeUp .8s .2s both;}
+    .page-hero h1 em{font-style:italic;color:var(--gold-light);}
+
+    /* PAYMENT TYPE TABS */
+    .type-tabs{
+      background:rgba(12,10,8,.9);backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      padding:.75rem 3rem;
+      display:flex;align-items:center;justify-content:center;gap:.75rem;
+    }
+    .type-tab{padding:.5rem 1.4rem;border:1px solid var(--border);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);background:transparent;cursor:pointer;transition:border-color .25s,color .25s,background .25s;display:flex;align-items:center;gap:.5rem;}
+    .type-tab svg{flex-shrink:0;}
+    .type-tab.active{border-color:var(--gold);color:var(--gold-light);background:rgba(184,153,106,.07);}
+    .type-tab:hover:not(.active){border-color:var(--gold-dim);color:var(--cream);}
+
+    /* MAIN LAYOUT */
+    .payment-layout{
+      display:grid;grid-template-columns:1fr 360px;
+      gap:2rem;max-width:1100px;margin:0 auto;
+      padding:3rem;
+    }
+
+    /* FORM CARD */
+    .form-card{background:var(--dark-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:1.25rem;}
+    .form-card-header{padding:1.4rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.85rem;}
+    .form-card-icon{width:36px;height:36px;border-radius:50%;border:1px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0;}
+    .form-card-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;color:var(--cream);}
+    .form-card-sub{font-size:.7rem;color:var(--text-muted);margin-top:.1rem;}
+    .form-card-body{padding:1.75rem;}
+
+    /* FIELDS */
+    .field{margin-bottom:1.25rem;position:relative;}
+    .field label{display:block;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.4rem;transition:color .2s;}
+    .field:focus-within label{color:var(--gold-light);}
+    .field input,.field select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:2px;padding:.72rem 1rem;font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--cream);outline:none;transition:border-color .25s,background .25s,box-shadow .25s,transform .15s;}
+    .field input::placeholder{color:rgba(138,125,107,.4);}
+    .field input:focus,.field select:focus{border-color:var(--gold);background:rgba(184,153,106,.05);box-shadow:0 0 0 3px rgba(184,153,106,.08);transform:translateY(-1px);}
+    .field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a7d6b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - 1rem) center;}
+    .field select option{background:var(--dark);color:var(--cream);}
+    .field input.err{border-color:var(--error)!important;box-shadow:0 0 0 3px rgba(192,97,74,.08)!important;}
+    .field-error{font-size:.63rem;color:var(--error);margin-top:.28rem;display:none;animation:errIn .2s ease both;}
+    .field-error.show{display:block;}
+    @keyframes errIn{from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:translateX(0);}}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+    .field-row-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:1rem;}
+
+    /* CARD VISUAL */
+    .card-visual-wrap{margin-bottom:1.5rem;}
+    .card-visual{
+      height:140px;border-radius:8px;
+      background:linear-gradient(135deg,#2a2218 0%,#1a1610 60%,#252018 100%);
+      border:1px solid var(--border);
+      padding:1.25rem 1.5rem;
+      display:flex;flex-direction:column;justify-content:space-between;
+      position:relative;overflow:hidden;
+      transition:transform .4s;
+    }
+    .card-visual:hover{transform:perspective(600px) rotateY(-4deg);}
+    .card-visual::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(184,153,106,.12) 0%,transparent 50%);pointer-events:none;}
+    .card-visual-top{display:flex;align-items:center;justify-content:space-between;}
+    .card-chip{width:36px;height:28px;border-radius:4px;background:linear-gradient(135deg,var(--gold),var(--gold-light));opacity:.8;}
+    .card-brand{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,240,232,.5);}
+    .card-brand.visa{color:#1a6fbf;font-weight:700;font-size:.9rem;letter-spacing:.05em;}
+    .card-brand.mastercard{display:flex;gap:-6px;}
+    .card-number-display{font-family:'Cormorant Garamond',serif;font-size:1.3rem;letter-spacing:.22em;color:rgba(245,240,232,.85);text-align:center;}
+    .card-visual-bottom{display:flex;align-items:flex-end;justify-content:space-between;}
+    .card-holder-display{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.6);}
+    .card-exp-display{font-size:.65rem;color:rgba(245,240,232,.6);}
+
+    /* PAYMENT METHOD TABS */
+    .method-tabs{display:flex;gap:.6rem;margin-bottom:1.5rem;}
+    .method-tab{flex:1;padding:.65rem;border:1px solid var(--border);border-radius:2px;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:border-color .25s,background .25s;}
+    .method-tab:hover{border-color:var(--gold-dim);}
+    .method-tab.active{border-color:var(--gold);background:rgba(184,153,106,.06);}
+    .method-tab-label{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);}
+    .method-tab.active .method-tab-label{color:var(--gold-light);}
+
+    /* CARD NUMBER INPUT STYLED */
+    .card-input-wrap{position:relative;}
+    .card-input-wrap input{padding-right:3rem;}
+    .card-type-icon{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);pointer-events:none;}
+
+    /* SECURITY BADGE */
+    .security-row{display:flex;align-items:center;gap:.6rem;padding:.85rem 1rem;border:1px solid var(--border);border-radius:2px;background:rgba(90,138,106,.06);margin-bottom:1.25rem;}
+    .security-row svg{color:var(--success);flex-shrink:0;}
+    .security-row span{font-size:.7rem;color:var(--text-muted);line-height:1.4;}
+    .security-row strong{color:var(--cream);}
+
+    /* SUBMIT */
+    .btn-pay{width:100%;padding:.95rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--dark);cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .3s;display:flex;align-items:center;justify-content:center;gap:.6rem;}
+    .btn-pay::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transition:left .45s;}
+    .btn-pay:hover::before{left:100%;}
+    .btn-pay:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,153,106,.4);}
+    .btn-pay:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+    /* PROCESSING */
+    .processing-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(8,7,5,.9);backdrop-filter:blur(12px);align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;}
+    .processing-overlay.show{display:flex;animation:fadeIn .3s ease both;}
+    .processing-spinner{width:56px;height:56px;border-radius:50%;border:1px solid var(--border);border-top-color:var(--gold);animation:spin 1s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .processing-text{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--cream);}
+    .processing-sub{font-size:.75rem;color:var(--text-muted);}
+
+    /* SUCCESS */
+    .success-screen{display:none;position:relative;z-index:2;padding:3rem 1.5rem;text-align:center;max-width:600px;margin:0 auto;}
+    .success-screen.show{display:flex;flex-direction:column;align-items:center;min-height:70vh;justify-content:center;animation:fadeUp .6s ease both;}
+    .success-icon-wrap{width:80px;height:80px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 1.75rem;color:var(--gold);animation:iconRing 2.5s ease-in-out infinite;}
+    @keyframes iconRing{0%,100%{box-shadow:0 0 0 0 rgba(184,153,106,.4);}50%{box-shadow:0 0 0 16px rgba(184,153,106,0);}}
+    .success-screen h2{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;margin-bottom:.6rem;}
+    .success-screen>p{font-size:.85rem;color:var(--text-muted);line-height:1.7;margin-bottom:1.5rem;max-width:440px;}
+    .success-receipt{background:var(--dark-card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;text-align:left;width:100%;max-width:420px;margin:0 auto 2rem;}
+    .receipt-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border);}
+    .receipt-row:last-child{border-bottom:none;}
+    .receipt-row .lbl{font-size:.7rem;color:var(--text-muted);}
+    .receipt-row .val{font-size:.78rem;color:var(--cream);}
+    .receipt-row.total .lbl{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--cream);}
+    .receipt-row.total .val{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold-light);}
+    .success-code{display:inline-block;padding:.55rem 1.4rem;border:1px solid var(--gold-dim);border-radius:2px;font-family:'Cormorant Garamond',serif;font-size:1.2rem;letter-spacing:.2em;color:var(--gold-light);margin-bottom:2rem;}
+    .success-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+    .btn-gold{padding:.85rem 2rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--dark);cursor:pointer;text-decoration:none;display:inline-block;transition:transform .2s,box-shadow .3s;}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(184,153,106,.35);}
+    .btn-outline{padding:.85rem 2rem;background:transparent;border:1px solid var(--border);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cream-dim);cursor:pointer;text-decoration:none;display:inline-block;transition:border-color .2s,color .2s;}
+    .btn-outline:hover{border-color:var(--gold);color:var(--cream);}
+
+    /* ORDER SUMMARY SIDEBAR */
+    .order-card{background:var(--dark-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;position:sticky;top:90px;}
+    .order-img{aspect-ratio:16/9;overflow:hidden;position:relative;}
+    .order-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s;}
+    .order-card:hover .order-img img{transform:scale(1.04);}
+    .order-img-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(12,10,8,.6));}
+    .order-body{padding:1.4rem;}
+    .order-eyebrow{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem;}
+    .order-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400;color:var(--cream);margin-bottom:1rem;}
+    .order-divider{height:1px;background:var(--border);margin:.9rem 0;}
+    .order-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem;}
+    .order-row .lbl{font-size:.7rem;color:var(--text-muted);}
+    .order-row .val{font-size:.76rem;color:var(--cream);}
+    .order-row.total .lbl{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--cream);}
+    .order-row.total .val{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold-light);}
+    .order-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem;}
+    .order-badge{padding:.18rem .55rem;border:1px solid var(--border);border-radius:2px;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+    .trust-row{display:flex;align-items:center;gap:.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+    .trust-row svg{color:var(--gold);flex-shrink:0;}
+    .trust-row span{font-size:.65rem;color:var(--text-muted);line-height:1.4;}
+
+    /* RESPONSIVE */
+    @media(max-width:1024px){.payment-layout{grid-template-columns:1fr;padding:2rem 1.5rem;}.order-card{position:static;}}
+    @media(max-width:768px){nav{padding:1rem 1.5rem;}.nav-links{display:none;}.nav-burger{display:flex;}.field-row,.field-row-3{grid-template-columns:1fr;}.payment-layout{padding:1.5rem 1rem;}.form-card-body{padding:1.25rem;}.method-tabs{flex-wrap:wrap;}.type-tabs{padding:.65rem 1.5rem;flex-wrap:wrap;}}
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="particles" id="particles"></div>
+<div class="grain"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- PROCESSING OVERLAY -->
+<div class="processing-overlay" id="processingOverlay">
+  <div class="processing-spinner"></div>
+  <div class="processing-text">Procesando su pago</div>
+  <div class="processing-sub">Por favor no cierre esta ventana…</div>
+</div>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="index.html" class="nav-logo"><div class="nav-diamond"></div>Hotel <span>Aurora</span></a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="habitaciones.html">Habitaciones</a>
+    <a href="reservas.html">Reservas</a>
+    <a href="anuncios.html">Anuncios</a>
+    <a href="auth.html" class="nav-cta">Iniciar Sesión</a>
+  </div>
+  <button class="nav-burger" id="burgerBtn"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="menu-close" id="menuClose">✕</button>
+  <a href="index.html"        onclick="this.closest('.mobile-menu').classList.remove('open')">Inicio</a>
+  <a href="habitaciones.html" onclick="this.closest('.mobile-menu').classList.remove('open')">Habitaciones</a>
+  <a href="reservas.html"     onclick="this.closest('.mobile-menu').classList.remove('open')">Reservas</a>
+  <a href="anuncios.html"     onclick="this.closest('.mobile-menu').classList.remove('open')">Anuncios</a>
+  <a href="auth.html"         onclick="this.closest('.mobile-menu').classList.remove('open')">Iniciar Sesión</a>
+</div>
+
+<div class="page">
+
+  <!-- PAGE HERO -->
+  <section class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-content">
+      <div class="page-hero-eyebrow">Hotel Aurora — Pasarela de Pago</div>
+      <h1>Confirme su <em>pago</em></h1>
+    </div>
+  </section>
+
+  <!-- TYPE TABS -->
+  <div class="type-tabs">
+    <button class="type-tab active" onclick="switchContext('reserva',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Pago de Reserva
+    </button>
+    <button class="type-tab" onclick="switchContext('anuncio',this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Pago de Anuncio
+    </button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="payment-layout" id="paymentLayout">
+
+    <!-- LEFT FORM -->
+    <div id="formArea">
+
+      <!-- BILLING INFO -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="form-card-title">Información de facturación</div>
+            <div class="form-card-sub">Datos del titular del pago</div>
+          </div>
+        </div>
+        <div class="form-card-body">
+          <div class="field-row">
+            <div class="field">
+              <label for="bill-nombre">Nombre</label>
+              <input type="text" id="bill-nombre" placeholder="Juan"/>
+              <div class="field-error" id="err-bill-nombre">Campo requerido.</div>
+            </div>
+            <div class="field">
+              <label for="bill-apellido">Apellido</label>
+              <input type="text" id="bill-apellido" placeholder="Pérez"/>
+              <div class="field-error" id="err-bill-apellido">Campo requerido.</div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="bill-email">Correo electrónico</label>
+              <input type="email" id="bill-email" placeholder="juan@correo.com"/>
+              <div class="field-error" id="err-bill-email">Correo inválido.</div>
+            </div>
+            <div class="field">
+              <label for="bill-tel">Teléfono</label>
+              <input type="tel" id="bill-tel" placeholder="+1 (809) 000-0000"/>
+              <div class="field-error" id="err-bill-tel">Campo requerido.</div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="bill-pais">País</label>
+              <select id="bill-pais">
+                <option value="">Seleccionar...</option>
+                <option value="do" selected>República Dominicana</option>
+                <option value="us">Estados Unidos</option>
+                <option value="es">España</option>
+                <option value="mx">México</option>
+                <option value="co">Colombia</option>
+                <option value="pr">Puerto Rico</option>
+                <option value="other">Otro</option>
+              </select>
+              <div class="field-error" id="err-bill-pais">Seleccione un país.</div>
+            </div>
+            <div class="field">
+              <label for="bill-ciudad">Ciudad</label>
+              <input type="text" id="bill-ciudad" placeholder="Santo Domingo"/>
+              <div class="field-error" id="err-bill-ciudad">Campo requerido.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENT METHOD -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="form-card-title">Método de pago</div>
+            <div class="form-card-sub">Seleccione cómo desea pagar</div>
+          </div>
+        </div>
+        <div class="form-card-body">
+
+          <!-- Method tabs -->
+          <div class="method-tabs">
+            <button class="method-tab active" onclick="switchMethod('card',this)">
+              <svg width="20" height="14" viewBox="0 0 38 24" fill="none"><rect width="38" height="24" rx="4" fill="rgba(184,153,106,.15)" stroke="rgba(184,153,106,.3)"/><rect x="4" y="8" width="8" height="6" rx="1" fill="rgba(184,153,106,.6)"/></svg>
+              <div class="method-tab-label">Tarjeta</div>
+            </button>
+            <button class="method-tab" onclick="switchMethod('paypal',this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 21h3l1-5.5h2c3.5 0 6-2 6-5.5S16 4 12.5 4H7L4 21"/><path d="M9.5 15.5h2.5c3.5 0 6-2 6-5.5"/></svg>
+              <div class="method-tab-label">PayPal</div>
+            </button>
+            <button class="method-tab" onclick="switchMethod('transfer',this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M7 15h.01M11 15h2"/></svg>
+              <div class="method-tab-label">Transferencia</div>
+            </button>
+          </div>
+
+          <!-- CARD PANEL -->
+          <div id="panel-card">
+            <!-- Card visual -->
+            <div class="card-visual-wrap">
+              <div class="card-visual" id="cardVisual">
+                <div class="card-visual-top">
+                  <div class="card-chip"></div>
+                  <div class="card-brand" id="cardBrandDisplay">AURORA CARD</div>
+                </div>
+                <div class="card-number-display" id="cardNumberDisplay">•••• •••• •••• ••••</div>
+                <div class="card-visual-bottom">
+                  <div>
+                    <div style="font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(245,240,232,.4);margin-bottom:.1rem;">Titular</div>
+                    <div class="card-holder-display" id="cardHolderDisplay">NOMBRE APELLIDO</div>
+                  </div>
+                  <div>
+                    <div style="font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(245,240,232,.4);margin-bottom:.1rem;">Vence</div>
+                    <div class="card-exp-display" id="cardExpDisplay">MM/AA</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card fields -->
+            <div class="field">
+              <label for="card-nombre">Nombre del titular</label>
+              <input type="text" id="card-nombre" placeholder="Como aparece en la tarjeta" oninput="updateCardDisplay()" autocomplete="cc-name"/>
+              <div class="field-error" id="err-card-nombre">Campo requerido.</div>
+            </div>
+            <div class="field">
+              <label for="card-numero">Número de tarjeta</label>
+              <div class="card-input-wrap">
+                <input type="text" id="card-numero" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this)" autocomplete="cc-number"/>
+                <div class="card-type-icon" id="cardTypeIcon">
+                  <svg width="28" height="18" viewBox="0 0 38 24" fill="none"><rect width="38" height="24" rx="4" fill="rgba(184,153,106,.1)" stroke="rgba(184,153,106,.2)"/><rect x="4" y="8" width="8" height="6" rx="1" fill="rgba(184,153,106,.4)"/></svg>
+                </div>
+              </div>
+              <div class="field-error" id="err-card-numero">Ingrese un número de tarjeta válido.</div>
+            </div>
+            <div class="field-row-3">
+              <div class="field">
+                <label for="card-exp">Fecha de vencimiento</label>
+                <input type="text" id="card-exp" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)" autocomplete="cc-exp"/>
+                <div class="field-error" id="err-card-exp">Fecha inválida.</div>
+              </div>
+              <div class="field">
+                <label for="card-cvv">CVV</label>
+                <input type="text" id="card-cvv" placeholder="•••" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')" autocomplete="cc-csc"/>
+                <div class="field-error" id="err-card-cvv">CVV inválido.</div>
+              </div>
+              <div class="field">
+                <label for="card-cuotas">Cuotas</label>
+                <select id="card-cuotas">
+                  <option value="1">1 cuota</option>
+                  <option value="3">3 cuotas</option>
+                  <option value="6">6 cuotas</option>
+                  <option value="12">12 cuotas</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAYPAL PANEL -->
+          <div id="panel-paypal" style="display:none;text-align:center;padding:2rem 1rem;">
+            <div style="width:72px;height:72px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;color:var(--gold);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 21h3l1-5.5h2c3.5 0 6-2 6-5.5S16 4 12.5 4H7L4 21"/><path d="M9.5 15.5h2.5c3.5 0 6-2 6-5.5"/></svg>
+            </div>
+            <p style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:300;color:var(--cream);margin-bottom:.5rem;">Pagar con PayPal</p>
+            <p style="font-size:.78rem;color:var(--text-muted);line-height:1.6;max-width:320px;margin:0 auto 1.5rem;">Al hacer clic en "Confirmar pago" será redirigido a PayPal para completar su transacción de forma segura. (Modo sandbox — proyecto académico)</p>
+            <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1.2rem;border:1px solid rgba(0,112,240,.3);border-radius:2px;background:rgba(0,112,240,.06);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0070f0" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span style="font-size:.65rem;color:#4a9af0;letter-spacing:.1em;">Transacción segura con PayPal</span>
+            </div>
+            <div id="paypal-button-container" style="max-width:360px;margin:1.5rem auto 0;"></div>
+          </div>
+
+          <!-- TRANSFER PANEL -->
+          <div id="panel-transfer" style="display:none;padding:.5rem 0;">
+            <p style="font-size:.78rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.25rem;">Realice la transferencia a los siguientes datos bancarios y envíe el comprobante por correo.</p>
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:2px;padding:1.25rem;">
+              <div style="display:grid;gap:.75rem;">
+                <div style="display:flex;justify-content:space-between;"><span style="font-size:.68rem;color:var(--text-muted);">Banco</span><span style="font-size:.75rem;color:var(--cream);">Banco Popular Dominicano</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="font-size:.68rem;color:var(--text-muted);">Titular</span><span style="font-size:.75rem;color:var(--cream);">Hotel Aurora S.R.L.</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="font-size:.68rem;color:var(--text-muted);">Cuenta</span><span style="font-size:.75rem;color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:.95rem;letter-spacing:.1em;">8765 4321 0000 1234</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="font-size:.68rem;color:var(--text-muted);">RNC</span><span style="font-size:.75rem;color:var(--cream);">1-01-23456-7</span></div>
+              </div>
+            </div>
+            <div class="field" style="margin-top:1.25rem;">
+              <label for="transfer-ref">Numero de referencia</label>
+              <input type="text" id="transfer-ref" placeholder="Ingrese el numero de su transferencia"/>
+            </div>
+          </div>
+
+          <!-- Security badge -->
+          <div class="security-row">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span><strong>Pago 100% seguro.</strong> Su informacion esta cifrada con SSL 256-bit. No almacenamos datos de tarjetas.</span>
+          </div>
+
+          <button class="btn-pay" id="payBtn" onclick="processPayment()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Confirmar pago - <span id="payBtnAmount">$0</span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div id="sidebarArea">
+      <div class="order-card">
+        <div class="order-img">
+          <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80&fit=crop" alt="Orden" id="orderImg"/>
+          <div class="order-img-overlay"></div>
+        </div>
+        <div class="order-body">
+          <div class="order-eyebrow" id="orderEyebrow">Resumen de pago</div>
+          <div class="order-name" id="orderName">Suite Deluxe</div>
+          <div class="order-divider"></div>
+          <div class="order-row">
+            <span class="lbl" id="orderLine1Label">Noches</span>
+            <span class="val" id="orderLine1Val">2 noches</span>
+          </div>
+          <div class="order-row">
+            <span class="lbl" id="orderLine2Label">Tarifa</span>
+            <span class="val" id="orderLine2Val">$210 / noche</span>
+          </div>
+          <div class="order-row">
+            <span class="lbl">Impuestos (18%)</span>
+            <span class="val" id="orderTaxVal">$75.60</span>
+          </div>
+          <div class="order-divider"></div>
+          <div class="order-row total">
+            <span class="lbl">Total</span>
+            <span class="val" id="orderTotal">$495.60</span>
+          </div>
+          <div class="order-badges">
+            <span class="order-badge">Pago seguro</span>
+            <span class="order-badge">Sin cargos ocultos</span>
+          </div>
+          <div class="trust-row">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Cifrado SSL · Datos protegidos · Proyecto academico · pagos simulados</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /payment-layout -->
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon-wrap">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Pago completado</h2>
+    <p>Su pago ha sido procesado exitosamente. Recibira un comprobante en su correo electronico.</p>
+    <div class="success-code" id="paymentCode">PAY-000000</div>
+    <div class="success-receipt" id="successReceipt"></div>
+    <div class="success-actions">
+      <a href="index.html" class="btn-gold">Volver al inicio</a>
+      <a href="reservas.html" class="btn-outline">Nueva reserva</a>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  /* ── CONTEXT ── */
+  const contexts = {
+    reserva: {
+      eyebrow:'Pago de Reserva', name:'Suite Deluxe',
+      img:'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80&fit=crop',
+      line1Label:'Noches', line1Val:'2 noches',
+      line2Label:'Tarifa', line2Val:'$210 / noche',
+      subtotal: 420, tax: 75.60, total: 495.60
+    },
+    anuncio: {
+      eyebrow:'Pago de Anuncio', name:'Plan Pro - Anunciante',
+      img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80&fit=crop',
+      line1Label:'Plan', line1Val:'Pro',
+      line2Label:'Duracion', line2Val:'1 mes',
+      subtotal: 249, tax: 44.82, total: 293.82
+    }
+  };
+  let currentContext = 'reserva';
+  let currentMethod  = 'card';
+
+  function switchContext(ctx, btn){
+    currentContext = ctx;
+    document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const c = contexts[ctx];
+    document.getElementById('orderEyebrow').textContent  = c.eyebrow;
+    document.getElementById('orderName').textContent     = c.name;
+    document.getElementById('orderImg').src              = c.img;
+    document.getElementById('orderLine1Label').textContent = c.line1Label;
+    document.getElementById('orderLine1Val').textContent   = c.line1Val;
+    document.getElementById('orderLine2Label').textContent = c.line2Label;
+    document.getElementById('orderLine2Val').textContent   = c.line2Val;
+    document.getElementById('orderTaxVal').textContent   = '$'+c.tax.toFixed(2);
+    document.getElementById('orderTotal').textContent    = '$'+c.total.toFixed(2);
+    document.getElementById('payBtnAmount').textContent  = '$'+c.total.toFixed(2);
+  }
+
+  function switchMethod(method, btn){
+    currentMethod = method;
+    document.querySelectorAll('.method-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-card').style.display     = method==='card'     ? 'block' : 'none';
+    document.getElementById('panel-paypal').style.display   = method==='paypal'   ? 'block' : 'none';
+    document.getElementById('panel-transfer').style.display = method==='transfer' ? 'block' : 'none';
+  }
+
+  /* ── CARD LIVE PREVIEW ── */
+  function formatCardNumber(inp){
+    let v = inp.value.replace(/\D/g,'').substring(0,16);
+    inp.value = v.replace(/(.{4})/g,'$1 ').trim();
+    const display = v.padEnd(16,'•').replace(/(.{4})/g,'$1 ').trim();
+    document.getElementById('cardNumberDisplay').textContent = display;
+    // detect brand
+    const brand = v.startsWith('4') ? 'VISA' : v.startsWith('5') ? 'MASTERCARD' : v.startsWith('3') ? 'AMEX' : 'AURORA CARD';
+    document.getElementById('cardBrandDisplay').textContent = brand;
+  }
+  function formatExpiry(inp){
+    let v = inp.value.replace(/\D/g,'');
+    if(v.length>=3) v = v.substring(0,2)+'/'+v.substring(2,4);
+    inp.value = v;
+    document.getElementById('cardExpDisplay').textContent = v || 'MM/AA';
+  }
+  function updateCardDisplay(){
+    const name = document.getElementById('card-nombre').value || 'NOMBRE APELLIDO';
+    document.getElementById('cardHolderDisplay').textContent = name.toUpperCase().substring(0,22);
+    // mirror to billing name
+    if(!document.getElementById('bill-nombre').value){
+      const parts = name.split(' ');
+      if(parts[0]) document.getElementById('bill-nombre').value = parts[0];
+      if(parts[1]) document.getElementById('bill-apellido').value = parts.slice(1).join(' ');
+    }
+  }
+
+  /* ── VALIDATE ── */
+  function fieldErr(id, errId, cond){
+    const el=document.getElementById(id), e=document.getElementById(errId);
+    if(!el||!e) return false;
+    el.classList.toggle('err',cond); e.classList.toggle('show',cond);
+    return cond;
+  }
+  function validateForm(){
+    let err = false;
+    err = fieldErr('bill-nombre',   'err-bill-nombre',   !document.getElementById('bill-nombre').value.trim())   || err;
+    err = fieldErr('bill-apellido', 'err-bill-apellido', !document.getElementById('bill-apellido').value.trim()) || err;
+    err = fieldErr('bill-email',    'err-bill-email',    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('bill-email').value)) || err;
+    err = fieldErr('bill-tel',      'err-bill-tel',      !document.getElementById('bill-tel').value.trim())      || err;
+    err = fieldErr('bill-pais',     'err-bill-pais',     !document.getElementById('bill-pais').value)            || err;
+    err = fieldErr('bill-ciudad',   'err-bill-ciudad',   !document.getElementById('bill-ciudad').value.trim())   || err;
+    if(currentMethod==='card'){
+      const num = document.getElementById('card-numero').value.replace(/\s/g,'');
+      const exp = document.getElementById('card-exp').value;
+      const cvv = document.getElementById('card-cvv').value;
+      err = fieldErr('card-nombre', 'err-card-nombre', !document.getElementById('card-nombre').value.trim()) || err;
+      err = fieldErr('card-numero', 'err-card-numero', num.length < 16) || err;
+      err = fieldErr('card-exp',    'err-card-exp',    !/^\d{2}\/\d{2}$/.test(exp)) || err;
+      err = fieldErr('card-cvv',    'err-card-cvv',    cvv.length < 3) || err;
+    }
+    return !err;
+  }
+
+  /* ── PROCESS PAYMENT ── */
+  function processPayment(){
+    if(!validateForm()) return;
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true;
+    // show processing
+    document.getElementById('processingOverlay').classList.add('show');
+    setTimeout(()=>{
+      document.getElementById('processingOverlay').classList.remove('show');
+      showSuccess();
+    }, 2400);
+  }
+
+  function showSuccess(){
+    const c = contexts[currentContext];
+    const code = 'PAY-'+Math.random().toString(36).substr(2,7).toUpperCase();
+    document.getElementById('paymentCode').textContent = code;
+    // build receipt
+    const nombre = document.getElementById('bill-nombre').value+' '+document.getElementById('bill-apellido').value;
+    const email  = document.getElementById('bill-email').value;
+    document.getElementById('successReceipt').innerHTML = `
+      <div class="receipt-row"><span class="lbl">Concepto</span><span class="val">${c.name}</span></div>
+      <div class="receipt-row"><span class="lbl">Titular</span><span class="val">${nombre}</span></div>
+      <div class="receipt-row"><span class="lbl">Correo</span><span class="val">${email}</span></div>
+      <div class="receipt-row"><span class="lbl">${c.line1Label}</span><span class="val">${c.line1Val}</span></div>
+      <div class="receipt-row"><span class="lbl">Subtotal</span><span class="val">$${c.subtotal.toFixed(2)}</span></div>
+      <div class="receipt-row"><span class="lbl">Impuestos</span><span class="val">$${c.tax.toFixed(2)}</span></div>
+      <div class="receipt-row total"><span class="lbl">Total pagado</span><span class="val">$${c.total.toFixed(2)}</span></div>
+    `;
+    // hide form
+    document.getElementById('paymentLayout').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  /* ── INIT ── */
+  switchContext('reserva', document.querySelector('.type-tab'));
+  document.getElementById('payBtnAmount').textContent = '$'+contexts.reserva.total.toFixed(2);
+
+  /* ── CURSOR ── */
+  const cur=document.getElementById('cursor'), ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2.5)';ring.style.transform='translate(-50%,-50%) scale(1.5)';});
+    el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';ring.style.transform='translate(-50%,-50%) scale(1)';});
+  });
+
+  /* ── PARTICLES ── */
+  (function(){const c=document.getElementById('particles');for(let i=0;i<16;i++){const p=document.createElement('div');p.className='particle';p.style.cssText=`--x:${(Math.random()*100).toFixed(1)}%;--dur:${(8+Math.random()*10).toFixed(1)}s;--delay:-${(Math.random()*14).toFixed(1)}s;width:${Math.random()>.55?3:2}px;height:${Math.random()>.55?3:2}px;`;c.appendChild(p);}})();
+
+  /* ── MOBILE MENU ── */
+  document.getElementById('burgerBtn').addEventListener('click',()=>document.getElementById('mobileMenu').classList.add('open'));
+  document.getElementById('menuClose').addEventListener('click', ()=>document.getElementById('mobileMenu').classList.remove('open'));
+
+  /* ── CLEAR ERRORS ── */
+  document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',()=>el.classList.remove('err')));
+</script>
+<script>
+  (function () {
+    const API_BASE_URL = 'http://127.0.0.1:5000/api';
+    const latestReservation = JSON.parse(localStorage.getItem('hotelAuroraLatestReservation') || 'null');
+    const latestAd = JSON.parse(localStorage.getItem('hotelAuroraLatestAd') || 'null');
+    const params = new URLSearchParams(window.location.search);
+    const payBtn = document.getElementById('payBtn');
+    const successActions = document.querySelector('.success-actions');
+    const paypalContainer = document.getElementById('paypal-button-container');
+    let paypalConfig = null;
+    let paypalSdkPromise = null;
+    let paypalButtonsRenderedFor = '';
+
+    function formatMoney(value) {
+      return '$' + Number(value || 0).toFixed(2);
+    }
+
+    function formatMethodLabel(method) {
+      const labels = {
+        card: 'Tarjeta',
+        paypal: 'PayPal',
+        transfer: 'Transferencia'
+      };
+      return labels[method] || method;
+    }
+
+    function ensurePaymentStatus() {
+      if (document.getElementById('payment-status')) return;
+      const formCardBody = document.querySelector('.form-card-body');
+      const status = document.createElement('div');
+      status.id = 'payment-status';
+      status.style.display = 'none';
+      status.style.marginBottom = '1rem';
+      status.style.padding = '.9rem 1rem';
+      status.style.borderRadius = '2px';
+      formCardBody.prepend(status);
+    }
+
+    function showPaymentStatus(message, isError) {
+      const el = document.getElementById('payment-status');
+      if (!el) return;
+      el.style.display = 'block';
+      el.style.fontSize = '.74rem';
+      el.style.border = `1px solid ${isError ? 'rgba(192,97,74,.35)' : 'rgba(90,138,106,.35)'}`;
+      el.style.background = isError ? 'rgba(192,97,74,.08)' : 'rgba(90,138,106,.08)';
+      el.style.color = isError ? '#f1c3b7' : '#d7eadc';
+      el.textContent = message;
+    }
+
+    function hidePaymentStatus() {
+      const el = document.getElementById('payment-status');
+      if (el) el.style.display = 'none';
+    }
+
+    function setPaymentReadyState(isReady, message) {
+      payBtn.disabled = !isReady;
+      payBtn.style.opacity = isReady ? '1' : '.6';
+      payBtn.style.cursor = isReady ? 'pointer' : 'not-allowed';
+      if (message) {
+        showPaymentStatus(message, !isReady);
+      } else {
+        hidePaymentStatus();
+      }
+    }
+
+    function getCurrentContextData() {
+      return currentContext === 'reserva' ? latestReservation : latestAd;
+    }
+
+    function buildPaymentPayload() {
+      const contextData = getCurrentContextData();
+      if (!contextData) return null;
+
+      const payload = {
+        context_type: currentContext === 'reserva' ? 'reservation' : 'ad'
+      };
+      if (currentContext === 'reserva') {
+        payload.reservation_id = contextData.id;
+        payload.amount = contextData.total;
+      } else {
+        payload.ad_id = contextData.id;
+        payload.amount = contextData.plan ? contextData.plan.price : contexts.anuncio.total;
+      }
+      return payload;
+    }
+
+    async function apiJson(path, options) {
+      const response = await fetch(`${API_BASE_URL}${path}`, options);
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error((result && result.message) || 'No se pudo completar la solicitud.');
+      }
+      return result;
+    }
+
+    async function loadPayPalSdk() {
+      if (window.paypal) return window.paypal;
+      if (paypalSdkPromise) return paypalSdkPromise;
+
+      paypalSdkPromise = (async function () {
+        paypalConfig = paypalConfig || await apiJson('/payments/paypal-config', { method: 'GET' });
+        await new Promise((resolve, reject) => {
+          const existing = document.querySelector('script[data-paypal-sdk="true"]');
+          if (existing) {
+            existing.addEventListener('load', () => resolve(), { once: true });
+            existing.addEventListener('error', () => reject(new Error('No se pudo cargar el SDK de PayPal.')), { once: true });
+            return;
+          }
+
+          const script = document.createElement('script');
+          script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(paypalConfig.client_id)}&currency=${encodeURIComponent(paypalConfig.currency || 'USD')}&intent=capture`;
+          script.async = true;
+          script.dataset.paypalSdk = 'true';
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('No se pudo cargar el SDK de PayPal.'));
+          document.head.appendChild(script);
+        });
+        return window.paypal;
+      })();
+
+      return paypalSdkPromise;
+    }
+
+    function showSuccessReceipt(result, methodLabel) {
+      document.getElementById('paymentCode').textContent = result.payment.payment_code;
+      const payerName = result.payer_name || `${document.getElementById('bill-nombre').value} ${document.getElementById('bill-apellido').value}`.trim() || 'Cliente PayPal';
+      const payerEmail = result.payer_email || document.getElementById('bill-email').value || 'Pagado con PayPal';
+      document.getElementById('successReceipt').innerHTML = `
+        <div class="receipt-row"><span class="lbl">Concepto</span><span class="val">${currentContext === 'reserva' ? contexts.reserva.name : contexts.anuncio.name}</span></div>
+        <div class="receipt-row"><span class="lbl">Titular</span><span class="val">${payerName}</span></div>
+        <div class="receipt-row"><span class="lbl">Correo</span><span class="val">${payerEmail}</span></div>
+        <div class="receipt-row"><span class="lbl">Metodo</span><span class="val">${methodLabel}</span></div>
+        <div class="receipt-row"><span class="lbl">Referencia</span><span class="val">${result.payment.transaction_reference}</span></div>
+        <div class="receipt-row total"><span class="lbl">Total pagado</span><span class="val">${formatMoney(result.payment.amount)}</span></div>
+      `;
+      document.getElementById('paymentLayout').style.display = 'none';
+      document.getElementById('successScreen').classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function renderPayPalButtons() {
+      const contextData = getCurrentContextData();
+      const isReady = !!contextData;
+      const renderKey = `${currentContext}:${contextData ? contextData.id : 'none'}`;
+
+      if (!paypalContainer) return;
+      paypalContainer.innerHTML = '';
+
+      if (!isReady) return;
+
+      try {
+        const paypal = await loadPayPalSdk();
+        if (!paypal || !paypal.Buttons) {
+          throw new Error('El SDK de PayPal no esta disponible.');
+        }
+
+        if (paypalButtonsRenderedFor === renderKey && paypalContainer.childElementCount > 0) {
+          return;
+        }
+
+        paypalButtonsRenderedFor = renderKey;
+        paypal.Buttons({
+          style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'rect',
+            label: 'paypal'
+          },
+          createOrder: async function () {
+            hidePaymentStatus();
+            const payload = buildPaymentPayload();
+            if (!payload) {
+              throw new Error('No hay datos para crear la orden de PayPal.');
+            }
+            const result = await apiJson('/payments/paypal/create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            return result.order_id;
+          },
+          onApprove: async function (data) {
+            document.getElementById('processingOverlay').classList.add('show');
+            try {
+              const payload = buildPaymentPayload();
+              payload.order_id = data.orderID;
+              const result = await apiJson('/payments/paypal/capture-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              document.getElementById('processingOverlay').classList.remove('show');
+              showSuccessReceipt(result, 'PayPal');
+            } catch (error) {
+              document.getElementById('processingOverlay').classList.remove('show');
+              showPaymentStatus(error.message, true);
+            }
+          },
+          onError: function () {
+            showPaymentStatus('PayPal devolvio un error al procesar el pago.', true);
+          },
+          onCancel: function () {
+            showPaymentStatus('El pago con PayPal fue cancelado.', true);
+          }
+        }).render('#paypal-button-container');
+      } catch (error) {
+        showPaymentStatus(error.message, true);
+      }
+    }
+
+    function syncMethodUi() {
+      const isPaypal = currentMethod === 'paypal';
+      payBtn.style.display = isPaypal ? 'none' : 'flex';
+      if (isPaypal) {
+        renderPayPalButtons();
+      } else if (paypalContainer) {
+        paypalContainer.innerHTML = '';
+        paypalButtonsRenderedFor = '';
+      }
+    }
+
+    function setSuccessActions(context, isReady) {
+      if (context === 'anuncio') {
+        successActions.innerHTML = isReady
+          ? '<a href="index.html" class="btn-gold">Volver al inicio</a><a href="anuncios.html" class="btn-outline">Ver anuncios</a>'
+          : '<a href="anuncios.html" class="btn-gold">Crear anuncio</a><a href="index.html" class="btn-outline">Volver al inicio</a>';
+        return;
+      }
+
+      successActions.innerHTML = isReady
+        ? '<a href="index.html" class="btn-gold">Volver al inicio</a><a href="reservas.html" class="btn-outline">Nueva reserva</a>'
+        : '<a href="reservas.html" class="btn-gold">Ir a reservas</a><a href="habitaciones.html" class="btn-outline">Ver habitaciones</a>';
+    }
+
+    function applyEmptyContextView(context) {
+      const isReservation = context === 'reserva';
+      contexts[context] = {
+        eyebrow: isReservation ? 'Pago de Reserva' : 'Pago de Anuncio',
+        name: isReservation ? 'Aun no hay una reserva lista' : 'Aun no hay un anuncio listo',
+        img: isReservation
+          ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80&fit=crop'
+          : 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80&fit=crop',
+        line1Label: 'Siguiente paso',
+        line1Val: isReservation ? 'Cree una reserva primero' : 'Cree un anuncio primero',
+        line2Label: 'Estado',
+        line2Val: 'Pendiente',
+        subtotal: 0,
+        tax: 0,
+        total: 0
+      };
+    }
+
+    if (latestReservation) {
+      contexts.reserva = {
+        eyebrow: 'Pago de Reserva',
+        name: latestReservation.room ? latestReservation.room.name : 'Reserva Hotel Aurora',
+        img: latestReservation.room && latestReservation.room.featured_image ? latestReservation.room.featured_image : 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80&fit=crop',
+        line1Label: 'Codigo',
+        line1Val: latestReservation.reservation_code,
+        line2Label: 'Estadia',
+        line2Val: `${latestReservation.check_in} a ${latestReservation.check_out}`,
+        subtotal: latestReservation.subtotal,
+        tax: latestReservation.taxes,
+        total: latestReservation.total
+      };
+    }
+
+    if (latestAd) {
+      contexts.anuncio = {
+        eyebrow: 'Pago de Anuncio',
+        name: latestAd.title,
+        img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80&fit=crop',
+        line1Label: 'Empresa',
+        line1Val: latestAd.company_name,
+        line2Label: 'Plan',
+        line2Val: latestAd.plan ? latestAd.plan.name : 'Pendiente',
+        subtotal: latestAd.plan ? latestAd.plan.price : 0,
+        tax: 0,
+        total: latestAd.plan ? latestAd.plan.price : 0
+      };
+    }
+
+    const originalSwitchContext = window.switchContext;
+    window.switchContext = function (ctx, btn) {
+      if (typeof originalSwitchContext === 'function') {
+        originalSwitchContext(ctx, btn);
+      }
+      const isReady = ctx === 'anuncio' ? !!latestAd : !!latestReservation;
+      setSuccessActions(ctx, isReady);
+      if (isReady) {
+        setPaymentReadyState(true);
+      } else {
+        setPaymentReadyState(
+          false,
+          ctx === 'anuncio'
+            ? 'Todavia no hay un anuncio reciente para pagar. Cree uno desde la seccion de anuncios.'
+            : 'Todavia no hay una reserva reciente para pagar. Complete primero su reserva.'
+        );
+      }
+      syncMethodUi();
+    };
+
+    const originalSwitchMethod = window.switchMethod;
+    window.switchMethod = function (method, btn) {
+      if (typeof originalSwitchMethod === 'function') {
+        originalSwitchMethod(method, btn);
+      }
+      syncMethodUi();
+    };
+
+    window.processPayment = async function () {
+      hidePaymentStatus();
+      if (currentMethod !== 'paypal' && !validateForm()) return;
+
+      const contextData = getCurrentContextData();
+      if (!contextData) {
+        showPaymentStatus('No hay datos recientes para procesar este pago. Complete primero la reserva o el anuncio.', true);
+        return;
+      }
+
+      if (currentMethod === 'paypal') {
+        showPaymentStatus('Use el boton oficial de PayPal para completar el pago.', true);
+        return;
+      }
+
+      const btn = document.getElementById('payBtn');
+      btn.disabled = true;
+      document.getElementById('processingOverlay').classList.add('show');
+
+      const payload = buildPaymentPayload();
+      payload.method = currentMethod;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/payments/simulate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error((result && result.message) || 'No se pudo procesar el pago.');
+        }
+
+        document.getElementById('processingOverlay').classList.remove('show');
+        showSuccessReceipt(result, formatMethodLabel(currentMethod));
+      } catch (error) {
+        document.getElementById('processingOverlay').classList.remove('show');
+        btn.disabled = false;
+        showPaymentStatus(error.message, true);
+      }
+    };
+
+    ensurePaymentStatus();
+    if (!latestReservation) {
+      applyEmptyContextView('reserva');
+    }
+    if (!latestAd) {
+      applyEmptyContextView('anuncio');
+    }
+    const initialContext = params.get('context') === 'anuncio' ? 'anuncio' : 'reserva';
+    const targetButton = initialContext === 'anuncio'
+      ? document.querySelectorAll('.type-tab')[1]
+      : document.querySelectorAll('.type-tab')[0];
+    window.switchContext(initialContext, targetButton);
+    document.getElementById('payBtnAmount').textContent = formatMoney(contexts[initialContext].total);
+    syncMethodUi();
+  })();
+</script>
+</body>
+</html>

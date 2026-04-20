@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Aurora – Acceso</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --gold: #b8996a;
+      --gold-light: #d4b98a;
+      --dark: #1a1610;
+      --text-muted: #8a7d6b;
+      --border: rgba(184,153,106,0.25);
+      --input-bg: rgba(255,255,255,0.06);
+      --error: #c0614a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--dark);
+      color: var(--cream);
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* ── ORBS ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(184,153,106,0.18) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      animation: orbFloat1 14s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(184,153,106,0.12) 0%, transparent 70%);
+      bottom: -80px; right: -80px;
+      animation: orbFloat2 18s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(212,185,138,0.1) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      animation: orbFloat3 22s ease-in-out infinite;
+    }
+    @keyframes orbFloat1 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%      { transform: translate(80px,60px) scale(1.1); }
+      66%      { transform: translate(-40px,100px) scale(0.95); }
+    }
+    @keyframes orbFloat2 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      40%      { transform: translate(-90px,-70px) scale(1.15); }
+      70%      { transform: translate(50px,-40px) scale(0.9); }
+    }
+    @keyframes orbFloat3 {
+      0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+      50%      { transform: translate(-50%,-50%) scale(1.3); opacity: 1; }
+    }
+
+    /* ── GRAIN ── */
+    .grain {
+      position: fixed;
+      inset: -50%;
+      width: 200%; height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 1;
+      animation: grainShift 0.12s steps(1) infinite;
+    }
+    @keyframes grainShift {
+      0%  { transform: translate(0,0); }
+      14% { transform: translate(-2%,-3%); }
+      28% { transform: translate(3%,1%); }
+      42% { transform: translate(-1%,4%); }
+      57% { transform: translate(4%,-1%); }
+      71% { transform: translate(-3%,2%); }
+      85% { transform: translate(1%,-4%); }
+    }
+
+    /* ── LÍNEAS ── */
+    .bg-lines {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .bg-lines span {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 1px;
+    }
+    .bg-lines span:nth-child(1) { left:15%; background:linear-gradient(to bottom,transparent,rgba(184,153,106,.15),transparent); animation:lineGlow 4s ease-in-out infinite 0s; }
+    .bg-lines span:nth-child(2) { left:35%; background:linear-gradient(to bottom,transparent,rgba(184,153,106,.10),transparent); animation:lineGlow 4s ease-in-out infinite 1s; }
+    .bg-lines span:nth-child(3) { left:65%; background:linear-gradient(to bottom,transparent,rgba(184,153,106,.10),transparent); animation:lineGlow 4s ease-in-out infinite 2s; }
+    .bg-lines span:nth-child(4) { left:85%; background:linear-gradient(to bottom,transparent,rgba(184,153,106,.15),transparent); animation:lineGlow 4s ease-in-out infinite 3s; }
+    @keyframes lineGlow {
+      0%,100% { opacity:.5; }
+      50%      { opacity:1; }
+    }
+
+    /* ── PARTÍCULAS ── */
+    .particles { position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+    .particle {
+      position: absolute;
+      background: var(--gold);
+      border-radius: 50%;
+      opacity: 0;
+      animation: particleRise var(--dur,8s) ease-in infinite var(--delay,0s);
+      left: var(--x,50%);
+    }
+    @keyframes particleRise {
+      0%   { transform:translateY(100vh) scale(0); opacity:0; }
+      10%  { opacity:.6; }
+      90%  { opacity:.25; }
+      100% { transform:translateY(-30px) scale(1.5); opacity:0; }
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 480px;
+      animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(32px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── BRAND ── */
+    .brand { text-align:center; margin-bottom:2.5rem; }
+    .brand-ornament {
+      display:flex; align-items:center; justify-content:center; gap:.75rem; margin-bottom:.5rem;
+    }
+    .brand-ornament::before { content:''; height:1px; width:48px; background:linear-gradient(to right,transparent,var(--gold)); }
+    .brand-ornament::after  { content:''; height:1px; width:48px; background:linear-gradient(to left,transparent,var(--gold)); }
+    .brand-diamond {
+      width:6px; height:6px;
+      background:var(--gold);
+      transform:rotate(45deg);
+      animation:diamondPulse 3s ease-in-out infinite;
+    }
+    @keyframes diamondPulse {
+      0%,100% { box-shadow:0 0 0 0 rgba(184,153,106,0); transform:rotate(45deg) scale(1); }
+      50%      { box-shadow:0 0 12px 4px rgba(184,153,106,.5); transform:rotate(45deg) scale(1.3); }
+    }
+    .brand h1 {
+      font-family:'Cormorant Garamond',serif;
+      font-size:2.6rem; font-weight:300;
+      letter-spacing:.18em; text-transform:uppercase;
+      color:var(--cream);
+      animation:shimmerText 5s ease-in-out infinite;
+    }
+    @keyframes shimmerText {
+      0%,100% { text-shadow:none; }
+      50%      { text-shadow:0 0 30px rgba(184,153,106,.35); }
+    }
+    .brand h1 em { font-style:italic; color:var(--gold-light); }
+    .brand p { font-size:.7rem; letter-spacing:.35em; text-transform:uppercase; color:var(--text-muted); margin-top:.25rem; }
+
+    /* ── CARD ── */
+    .card {
+      background:rgba(20,17,12,.78);
+      border:1px solid var(--border);
+      border-radius:4px;
+      backdrop-filter:blur(24px);
+      overflow:hidden;
+      position:relative;
+      transition:box-shadow .4s;
+    }
+    .card:hover { box-shadow:0 0 60px rgba(184,153,106,.08),0 20px 60px rgba(0,0,0,.5); }
+    .card::before {
+      content:'';
+      position:absolute; inset:0; border-radius:4px;
+      background:linear-gradient(135deg,rgba(184,153,106,.15),transparent 40%,transparent 60%,rgba(184,153,106,.08));
+      pointer-events:none; opacity:0; transition:opacity .4s;
+    }
+    .card:hover::before { opacity:1; }
+
+    /* ── TABS ── */
+    .tabs { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--border); }
+    .tab-btn {
+      background:none; border:none; padding:1.1rem;
+      font-family:'DM Sans',sans-serif; font-size:.72rem;
+      letter-spacing:.25em; text-transform:uppercase;
+      color:var(--text-muted); cursor:pointer;
+      transition:color .3s,background .3s; position:relative;
+    }
+    .tab-btn::after {
+      content:''; position:absolute; bottom:-1px; left:0; right:0; height:1px;
+      background:var(--gold); transform:scaleX(0);
+      transition:transform .4s cubic-bezier(.22,1,.36,1);
+    }
+    .tab-btn.active { color:var(--gold-light); background:rgba(184,153,106,.05); }
+    .tab-btn.active::after { transform:scaleX(1); }
+    .tab-btn:hover:not(.active) { color:var(--cream); }
+
+    /* ── FORMS ── */
+    .forms { padding:2.25rem 2.25rem 2.5rem; }
+    .form-panel { display:none; }
+    .form-panel.active { display:block; animation:panelIn .45s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes panelIn {
+      from { opacity:0; transform:translateX(16px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+
+    .form-title { font-family:'Cormorant Garamond',serif; font-size:1.55rem; font-weight:400; color:var(--cream); margin-bottom:.3rem; }
+    .form-subtitle { font-size:.78rem; color:var(--text-muted); margin-bottom:1.8rem; line-height:1.5; }
+
+    /* ── FIELDS ── */
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .field { margin-bottom:1.2rem; position:relative; }
+    .field label {
+      display:block; font-size:.65rem; letter-spacing:.2em;
+      text-transform:uppercase; color:var(--text-muted);
+      margin-bottom:.45rem; transition:color .2s;
+    }
+    .field:focus-within label { color:var(--gold-light); }
+    .field input {
+      width:100%;
+      background:var(--input-bg);
+      border:1px solid var(--border);
+      border-radius:2px;
+      padding:.7rem .9rem;
+      font-family:'DM Sans',sans-serif; font-size:.88rem;
+      color:var(--cream); outline:none;
+      transition:border-color .25s,background .25s,box-shadow .25s,transform .15s;
+    }
+    .field input::placeholder { color:rgba(138,125,107,.45); }
+    .field input:focus {
+      border-color:var(--gold);
+      background:rgba(184,153,106,.06);
+      box-shadow:0 0 0 3px rgba(184,153,106,.1),0 0 20px rgba(184,153,106,.05);
+      transform:translateY(-1px);
+    }
+    .field input.error { border-color:var(--error); }
+
+    .field-error {
+      font-size:.67rem; color:var(--error);
+      margin-top:.3rem; display:none;
+      animation:errIn .2s ease both;
+    }
+    .field-error.show { display:block; }
+    @keyframes errIn {
+      from { opacity:0; transform:translateX(-6px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+
+    .field-icon-wrap { position:relative; }
+    .field-icon-wrap input { padding-right:2.5rem; }
+    .toggle-pw {
+      position:absolute; right:.75rem; top:50%; transform:translateY(-50%);
+      background:none; border:none; cursor:pointer;
+      color:var(--text-muted); padding:0; line-height:1; transition:color .2s;
+    }
+    .toggle-pw:hover { color:var(--gold); }
+
+    .forgot { text-align:right; margin-top:-.6rem; margin-bottom:1.2rem; }
+    .forgot a { font-size:.7rem; color:var(--text-muted); text-decoration:none; letter-spacing:.05em; transition:color .2s; }
+    .forgot a:hover { color:var(--gold-light); }
+    .inline-link { background:none; border:none; padding:0; font:inherit; cursor:pointer; }
+    .back-link { display:inline-flex; align-items:center; gap:.4rem; margin-bottom:1rem; font-size:.72rem; color:var(--gold-light); text-decoration:none; }
+    .back-link:hover { color:var(--cream); }
+    .token-help {
+      margin-top:-.4rem; margin-bottom:1rem; padding:.8rem .95rem;
+      border:1px dashed rgba(184,153,106,.35); border-radius:2px;
+      background:rgba(184,153,106,.05); font-size:.74rem; line-height:1.55; color:var(--text-muted);
+    }
+    .token-help strong { color:var(--cream); }
+
+    .divider {
+      display:flex; align-items:center; gap:.75rem;
+      margin:1.4rem 0; color:var(--text-muted);
+      font-size:.68rem; letter-spacing:.15em; text-transform:uppercase;
+    }
+    .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* ── BUTTON ── */
+    .btn-primary {
+      width:100%; padding:.85rem;
+      background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%);
+      border:none; border-radius:2px;
+      font-family:'DM Sans',sans-serif; font-size:.7rem; font-weight:500;
+      letter-spacing:.25em; text-transform:uppercase;
+      color:var(--dark); cursor:pointer;
+      position:relative; overflow:hidden;
+      transition:transform .2s,box-shadow .3s;
+    }
+    .btn-primary::before {
+      content:''; position:absolute;
+      top:0; left:-100%; width:100%; height:100%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
+      transition:left .5s;
+    }
+    .btn-primary:hover::before { left:100%; }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(184,153,106,.4); }
+    .btn-primary:active { transform:translateY(0); }
+    .btn-primary:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+    .btn-social {
+      width:100%; padding:.75rem; background:transparent;
+      border:1px solid var(--border); border-radius:2px;
+      font-family:'DM Sans',sans-serif; font-size:.78rem; color:var(--cream);
+      cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.6rem;
+      transition:background .25s,border-color .25s,transform .2s,box-shadow .25s;
+      margin-bottom:.7rem;
+    }
+    .btn-social:hover {
+      background:rgba(255,255,255,.04);
+      border-color:rgba(184,153,106,.5);
+      transform:translateY(-1px);
+      box-shadow:0 4px 16px rgba(0,0,0,.2);
+    }
+
+    .check-field { display:flex; align-items:flex-start; gap:.6rem; margin-bottom:1.3rem; }
+    .check-field input[type="checkbox"] { width:15px; height:15px; flex-shrink:0; margin-top:2px; accent-color:var(--gold); cursor:pointer; }
+    .check-field label { font-size:.73rem; color:var(--text-muted); cursor:pointer; line-height:1.5; }
+    .check-field label a { color:var(--gold-light); text-decoration:none; }
+
+    /* ── SUCCESS ── */
+    .success-msg { display:none; text-align:center; padding:1.5rem 0; }
+    .success-msg.show { display:block; animation:successIn .6s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes successIn {
+      from { opacity:0; transform:scale(.85); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    .success-icon {
+      width:52px; height:52px; border-radius:50%;
+      border:1px solid var(--gold);
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 1rem; color:var(--gold);
+      animation:iconRing 2s ease-in-out infinite;
+    }
+    @keyframes iconRing {
+      0%,100% { box-shadow:0 0 0 0 rgba(184,153,106,.4); }
+      50%      { box-shadow:0 0 0 10px rgba(184,153,106,0); }
+    }
+    .success-msg h3 { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:400; margin-bottom:.4rem; }
+    .success-msg p  { font-size:.8rem; color:var(--text-muted); }
+
+    /* ── STRENGTH ── */
+    #strength-wrap { margin-top:.5rem; display:none; }
+    .strength-track { height:3px; background:var(--border); border-radius:2px; overflow:hidden; }
+    #strength-bar { height:100%; width:0; transition:width .4s cubic-bezier(.22,1,.36,1),background .4s; border-radius:2px; }
+    #strength-label { font-size:.62rem; color:var(--text-muted); margin-top:.25rem; }
+
+    .footer-note { text-align:center; margin-top:1.5rem; font-size:.68rem; color:var(--text-muted); letter-spacing:.05em; }
+    .footer-note a { color:var(--gold-light); text-decoration:none; }
+    .footer-note a:hover { text-decoration:underline; }
+
+    @media (max-width:520px) {
+      .page { padding:2rem 1rem; }
+      .forms { padding:1.75rem 1.5rem 2rem; }
+      .field-row { grid-template-columns:1fr; gap:0; }
+      .brand h1 { font-size:2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Fondo vivo -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="grain"></div>
+<div class="bg-lines"><span></span><span></span><span></span><span></span></div>
+<div class="particles" id="particles"></div>
+
+<div class="page">
+  <div class="wrapper">
+
+    <div class="brand">
+      <div class="brand-ornament"><div class="brand-diamond"></div></div>
+      <h1>Hotel <em>Aurora</em></h1>
+      <p>Experiencia &amp; Confort desde 1998</p>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Iniciar Sesión</button>
+        <button class="tab-btn" onclick="switchTab('register')">Registrarse</button>
+      </div>
+
+      <div class="forms">
+
+        <!-- LOGIN -->
+        <div class="form-panel active" id="panel-login">
+          <h2 class="form-title">Bienvenido de vuelta</h2>
+          <p class="form-subtitle">Ingrese sus credenciales para acceder a su cuenta.</p>
+
+          <div class="field">
+            <label for="login-email">Correo electrónico</label>
+            <input type="email" id="login-email" placeholder="nombre@correo.com" autocomplete="email"/>
+            <div class="field-error" id="err-login-email">Ingrese un correo válido.</div>
+          </div>
+
+          <div class="field">
+            <label for="login-pw">Contraseña</label>
+            <div class="field-icon-wrap">
+              <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password"/>
+              <button class="toggle-pw" type="button" onclick="togglePw('login-pw',this)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="field-error" id="err-login-pw">Ingrese su contraseña.</div>
+          </div>
+
+          <div class="forgot"><button class="inline-link" type="button" onclick="showPanel('recover')">¿Olvidó su contraseña?</button></div>
+
+          <button class="btn-primary" onclick="handleLogin()">Ingresar</button>
+
+          <div class="divider">o continúe con</div>
+
+          <button class="btn-social" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.26 9.77A7.01 7.01 0 0 1 12 5c1.7 0 3.24.62 4.43 1.64l3.3-3.3A11.95 11.95 0 0 0 12 1C7.31 1 3.25 3.74 1.26 7.77l4 3z"/><path fill="#34A853" d="M16.28 18.18A6.97 6.97 0 0 1 12 19c-2.97 0-5.52-1.84-6.6-4.46l-3.97 3.06C3.5 20.44 7.45 23 12 23c2.9 0 5.56-1.01 7.62-2.65l-3.34-2.17z"/><path fill="#FBBC05" d="M19.62 20.35C21.67 18.3 23 15.3 23 12c0-.73-.1-1.44-.25-2.12H12v4.5h6.18a5.28 5.28 0 0 1-2.28 3.47l3.72 2.5z"/><path fill="#4285F4" d="M5.4 14.54A7.08 7.08 0 0 1 5 12c0-.9.17-1.76.46-2.55L1.46 6.45A11.9 11.9 0 0 0 0 12c0 1.92.46 3.73 1.28 5.34l4.12-2.8z"/></svg>
+            Continuar con Google
+          </button>
+
+          <div class="success-msg" id="login-success">
+            <div class="success-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <h3>¡Bienvenido!</h3>
+            <p>Redirigiendo a su cuenta...</p>
+          </div>
+        </div>
+
+        <!-- REGISTRO -->
+        <div class="form-panel" id="panel-register">
+          <h2 class="form-title">Crear una cuenta</h2>
+          <p class="form-subtitle">Complete el formulario para disfrutar de todos nuestros beneficios.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="reg-nombre">Nombre</label>
+              <input type="text" id="reg-nombre" placeholder="Juan" autocomplete="given-name"/>
+              <div class="field-error" id="err-reg-nombre">Campo requerido.</div>
+            </div>
+            <div class="field">
+              <label for="reg-apellido">Apellido</label>
+              <input type="text" id="reg-apellido" placeholder="Pérez" autocomplete="family-name"/>
+              <div class="field-error" id="err-reg-apellido">Campo requerido.</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="reg-email">Correo electrónico</label>
+            <input type="email" id="reg-email" placeholder="nombre@correo.com" autocomplete="email"/>
+            <div class="field-error" id="err-reg-email">Ingrese un correo válido.</div>
+          </div>
+
+          <div class="field">
+            <label for="reg-tel">Teléfono</label>
+            <input type="tel" id="reg-tel" placeholder="+1 (809) 000-0000" autocomplete="tel"/>
+          </div>
+
+          <div class="field">
+            <label for="reg-pw">Contraseña</label>
+            <div class="field-icon-wrap">
+              <input type="password" id="reg-pw" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+              <button class="toggle-pw" type="button" onclick="togglePw('reg-pw',this)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="field-error" id="err-reg-pw">Mínimo 8 caracteres.</div>
+            <div id="strength-wrap">
+              <div class="strength-track"><div id="strength-bar"></div></div>
+              <div id="strength-label"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="reg-pw2">Confirmar contraseña</label>
+            <div class="field-icon-wrap">
+              <input type="password" id="reg-pw2" placeholder="Repita su contraseña" autocomplete="new-password"/>
+              <button class="toggle-pw" type="button" onclick="togglePw('reg-pw2',this)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="field-error" id="err-reg-pw2">Las contraseñas no coinciden.</div>
+          </div>
+
+          <div class="check-field">
+            <input type="checkbox" id="reg-terms"/>
+            <label for="reg-terms">Acepto los <a href="#">Términos y Condiciones</a> y la <a href="#">Política de Privacidad</a> del Hotel Aurora.</label>
+          </div>
+          <div class="field-error" id="err-reg-terms" style="margin-top:-.8rem;margin-bottom:1rem;">Debe aceptar los términos.</div>
+
+          <button class="btn-primary" onclick="handleRegister()">Crear cuenta</button>
+
+          <div class="success-msg" id="register-success">
+            <div class="success-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <h3>¡Cuenta creada!</h3>
+            <p>Revise su correo para verificar su cuenta.</p>
+          </div>
+        </div>
+
+        <!-- RECUPERAR -->
+        <div class="form-panel" id="panel-recover">
+          <button class="inline-link back-link" type="button" onclick="showPanel('login')">← Volver al inicio de sesión</button>
+          <h2 class="form-title">Recuperar contraseña</h2>
+          <p class="form-subtitle">Ingrese el correo de su cuenta. Generaremos un token temporal para restablecer su contraseña en esta demo.</p>
+
+          <div class="field">
+            <label for="recover-email">Correo electrónico</label>
+            <input type="email" id="recover-email" placeholder="nombre@correo.com" autocomplete="email"/>
+            <div class="field-error" id="err-recover-email">Ingrese un correo válido.</div>
+          </div>
+
+          <button class="btn-primary" id="recover-btn" onclick="handleForgotPassword()">Generar token</button>
+        </div>
+
+        <!-- RESTABLECER -->
+        <div class="form-panel" id="panel-reset">
+          <button class="inline-link back-link" type="button" onclick="showPanel('login')">← Volver al inicio de sesión</button>
+          <h2 class="form-title">Nueva contraseña</h2>
+          <p class="form-subtitle">Pegue el token de recuperación y defina su nueva contraseña.</p>
+
+          <div class="token-help" id="reset-token-help" style="display:none;">
+            <strong>Token generado para la demo.</strong> Ya lo dejamos cargado abajo para que pueda continuar sin correo real.
+          </div>
+
+          <div class="field">
+            <label for="reset-token">Token de recuperación</label>
+            <input type="text" id="reset-token" placeholder="Pegue aquí el token temporal" autocomplete="off"/>
+            <div class="field-error" id="err-reset-token">El token es obligatorio.</div>
+          </div>
+
+          <div class="field">
+            <label for="reset-pw">Nueva contraseña</label>
+            <div class="field-icon-wrap">
+              <input type="password" id="reset-pw" placeholder="Mínimo 8 caracteres" autocomplete="new-password"/>
+              <button class="toggle-pw" type="button" onclick="togglePw('reset-pw',this)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="field-error" id="err-reset-pw">Mínimo 8 caracteres.</div>
+          </div>
+
+          <div class="field">
+            <label for="reset-pw2">Confirmar nueva contraseña</label>
+            <div class="field-icon-wrap">
+              <input type="password" id="reset-pw2" placeholder="Repita la nueva contraseña" autocomplete="new-password"/>
+              <button class="toggle-pw" type="button" onclick="togglePw('reset-pw2',this)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="field-error" id="err-reset-pw2">Las contraseñas no coinciden.</div>
+          </div>
+
+          <button class="btn-primary" id="reset-btn" onclick="handleResetPassword()">Actualizar contraseña</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer-note">
+      ¿Necesita ayuda? <a href="#">Contáctenos</a> &nbsp;·&nbsp; <a href="#">Privacidad</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── PARTÍCULAS ── */
+  (function(){
+    const c = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+      const p   = document.createElement('div');
+      p.className = 'particle';
+      const x   = (Math.random()*100).toFixed(1);
+      const dur = (7 + Math.random()*10).toFixed(1);
+      const del = (Math.random()*14).toFixed(1);
+      const sz  = Math.random() > 0.55 ? 3 : 2;
+      p.style.cssText = `--x:${x}%;--dur:${dur}s;--delay:-${del}s;width:${sz}px;height:${sz}px;`;
+      c.appendChild(p);
+    }
+  })();
+
+  /* ── PARALLAX ── */
+  document.addEventListener('mousemove', e => {
+    const mx = (e.clientX/window.innerWidth  - .5) * 30;
+    const my = (e.clientY/window.innerHeight - .5) * 30;
+    document.querySelector('.orb-1').style.transform = `translate(${mx*.8}px,${my*.8}px)`;
+    document.querySelector('.orb-2').style.transform = `translate(${-mx*.5}px,${-my*.5}px)`;
+    document.querySelector('.orb-3').style.transform = `translate(calc(-50% + ${mx*.3}px),calc(-50% + ${my*.3}px))`;
+  });
+
+  /* ── TABS ── */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) =>
+      b.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='register'))
+    );
+    document.querySelectorAll('.form-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+tab).classList.add('active');
+  }
+
+  function showPanel(panel) {
+    const tabMap = { login: 0, register: 1 };
+    document.querySelectorAll('.tab-btn').forEach((b,i) =>
+      b.classList.toggle('active', tabMap[panel] === i)
+    );
+    document.querySelectorAll('.form-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+panel).classList.add('active');
+  }
+
+  /* ── TOGGLE PW ── */
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  }
+
+  /* ── STRENGTH ── */
+  function checkStrength(pw) {
+    const wrap = document.getElementById('strength-wrap');
+    const bar  = document.getElementById('strength-bar');
+    const lbl  = document.getElementById('strength-label');
+    if (!pw) { wrap.style.display='none'; return; }
+    wrap.style.display = 'block';
+    let s = 0;
+    if (pw.length>=8)          s++;
+    if (/[A-Z]/.test(pw))      s++;
+    if (/[0-9]/.test(pw))      s++;
+    if (/[^A-Za-z0-9]/.test(pw)) s++;
+    const lvl = [{w:'25%',c:'#c0614a',t:'Muy débil'},{w:'50%',c:'#c07a4a',t:'Débil'},{w:'75%',c:'#b8a950',t:'Aceptable'},{w:'100%',c:'#5a8a6a',t:'Fuerte'}];
+    const l = lvl[Math.max(s-1,0)];
+    bar.style.width=l.w; bar.style.background=l.c; lbl.style.color=l.c; lbl.textContent=l.t;
+  }
+
+  /* ── VALIDACIÓN ── */
+  function showErr(id,v){ document.getElementById(id).classList.toggle('show',v); return v; }
+  function fieldErr(inp,err,cond){ document.getElementById(inp).classList.toggle('error',cond); return showErr(err,cond); }
+
+  function handleLogin(){
+    const email=document.getElementById('login-email').value.trim();
+    const pw   =document.getElementById('login-pw').value;
+    let e=false;
+    e=fieldErr('login-email','err-login-email',!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))||e;
+    e=fieldErr('login-pw',  'err-login-pw',   pw.length<1)||e;
+    if(!e){
+      const btn=document.querySelector('#panel-login .btn-primary');
+      btn.disabled=true; btn.textContent='Ingresando...';
+      setTimeout(()=>{ btn.style.display='none'; document.getElementById('login-success').classList.add('show'); },1200);
+    }
+  }
+
+  function handleRegister(){
+    const n =document.getElementById('reg-nombre').value.trim();
+    const ap=document.getElementById('reg-apellido').value.trim();
+    const em=document.getElementById('reg-email').value.trim();
+    const pw=document.getElementById('reg-pw').value;
+    const p2=document.getElementById('reg-pw2').value;
+    const tk=document.getElementById('reg-terms').checked;
+    let e=false;
+    e=fieldErr('reg-nombre',  'err-reg-nombre',  n.length<1)||e;
+    e=fieldErr('reg-apellido','err-reg-apellido',ap.length<1)||e;
+    e=fieldErr('reg-email',   'err-reg-email',   !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))||e;
+    e=fieldErr('reg-pw',      'err-reg-pw',      pw.length<8)||e;
+    e=fieldErr('reg-pw2',     'err-reg-pw2',     pw!==p2)||e;
+    if(!tk){ showErr('err-reg-terms',true); e=true; } else showErr('err-reg-terms',false);
+    if(!e){
+      const btn=document.querySelector('#panel-register .btn-primary');
+      btn.disabled=true; btn.textContent='Creando cuenta...';
+      setTimeout(()=>{ btn.style.display='none'; document.getElementById('register-success').classList.add('show'); },1400);
+    }
+  }
+
+  document.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>i.classList.remove('error')));
+</script>
+<script>
+  (function () {
+    const API_BASE_URL = 'http://127.0.0.1:5000/api';
+
+    function ensureStatusNode(panelId, statusId) {
+      const panel = document.getElementById(panelId);
+      if (!panel || document.getElementById(statusId)) return;
+      const subtitle = panel.querySelector('.form-subtitle');
+      const status = document.createElement('div');
+      status.id = statusId;
+      status.style.display = 'none';
+      status.style.marginBottom = '1rem';
+      status.style.padding = '.85rem .95rem';
+      status.style.borderRadius = '2px';
+      status.style.border = '1px solid rgba(184,153,106,.22)';
+      status.style.fontSize = '.75rem';
+      status.style.lineHeight = '1.5';
+      subtitle.insertAdjacentElement('afterend', status);
+    }
+
+    function showStatus(id, type, message) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = 'block';
+      el.textContent = message;
+      if (type === 'error') {
+        el.style.color = '#f1c3b7';
+        el.style.borderColor = 'rgba(192,97,74,.4)';
+        el.style.background = 'rgba(192,97,74,.1)';
+      } else {
+        el.style.color = '#d7eadc';
+        el.style.borderColor = 'rgba(90,138,106,.4)';
+        el.style.background = 'rgba(90,138,106,.1)';
+      }
+    }
+
+    function hideStatus(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = 'none';
+      el.textContent = '';
+    }
+
+    function setButtonLoading(button, isLoading, text) {
+      if (!button) return;
+      button.disabled = isLoading;
+      button.textContent = text;
+    }
+
+    function extractMessage(payload, fallback) {
+      if (!payload) return fallback;
+      if (typeof payload.message === 'string' && payload.message.trim()) return payload.message;
+      if (payload.details && typeof payload.details === 'object') {
+        const first = Object.values(payload.details).find(v => typeof v === 'string' && v.trim());
+        if (first) return first;
+      }
+      return fallback;
+    }
+
+    async function apiRequest(path, options) {
+      const response = await fetch(`${API_BASE_URL}${path}`, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(extractMessage(payload, 'No se pudo completar la solicitud.'));
+      }
+      return payload;
+    }
+
+    function persistSession(payload) {
+      localStorage.setItem('hotelAuroraToken', payload.access_token);
+      localStorage.setItem('hotelAuroraUser', JSON.stringify(payload.user));
+    }
+
+    function resetFeedback() {
+      hideStatus('login-status');
+      hideStatus('register-status');
+      hideStatus('recover-status');
+      hideStatus('reset-status');
+      document.getElementById('login-success').classList.remove('show');
+      document.getElementById('register-success').classList.remove('show');
+      const loginBtn = document.querySelector('#panel-login .btn-primary');
+      const registerBtn = document.querySelector('#panel-register .btn-primary');
+      if (loginBtn) loginBtn.style.display = '';
+      if (registerBtn) registerBtn.style.display = '';
+    }
+
+    const originalShowPanel = window.showPanel;
+    window.showPanel = function (panel) {
+      if (typeof originalShowPanel === 'function') {
+        originalShowPanel(panel);
+      }
+      hideStatus('login-status');
+      hideStatus('register-status');
+      hideStatus('recover-status');
+      hideStatus('reset-status');
+    };
+
+    window.switchTab = function (tab) {
+      window.showPanel(tab);
+    };
+
+    window.handleLogin = async function () {
+      const email = document.getElementById('login-email').value.trim();
+      const pw = document.getElementById('login-pw').value;
+      const btn = document.querySelector('#panel-login .btn-primary');
+      let hasError = false;
+
+      resetFeedback();
+      hasError = fieldErr('login-email', 'err-login-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || hasError;
+      hasError = fieldErr('login-pw', 'err-login-pw', pw.length < 1) || hasError;
+      if (hasError) return;
+
+      try {
+        setButtonLoading(btn, true, 'Ingresando...');
+        const payload = await apiRequest('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password: pw })
+        });
+        persistSession(payload);
+        btn.style.display = 'none';
+        document.getElementById('login-success').classList.add('show');
+        showStatus('login-status', 'success', 'Inicio de sesion correcto. Redirigiendo...');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1200);
+      } catch (error) {
+        showStatus('login-status', 'error', error.message);
+        setButtonLoading(btn, false, 'Ingresar');
+      }
+    };
+
+    window.handleRegister = async function () {
+      const n = document.getElementById('reg-nombre').value.trim();
+      const ap = document.getElementById('reg-apellido').value.trim();
+      const em = document.getElementById('reg-email').value.trim();
+      const tel = document.getElementById('reg-tel').value.trim();
+      const pw = document.getElementById('reg-pw').value;
+      const p2 = document.getElementById('reg-pw2').value;
+      const tk = document.getElementById('reg-terms').checked;
+      const btn = document.querySelector('#panel-register .btn-primary');
+      let hasError = false;
+
+      resetFeedback();
+      hasError = fieldErr('reg-nombre', 'err-reg-nombre', n.length < 1) || hasError;
+      hasError = fieldErr('reg-apellido', 'err-reg-apellido', ap.length < 1) || hasError;
+      hasError = fieldErr('reg-email', 'err-reg-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) || hasError;
+      hasError = fieldErr('reg-pw', 'err-reg-pw', pw.length < 8) || hasError;
+      hasError = fieldErr('reg-pw2', 'err-reg-pw2', pw !== p2) || hasError;
+      if (!tk) {
+        showErr('err-reg-terms', true);
+        hasError = true;
+      } else {
+        showErr('err-reg-terms', false);
+      }
+      if (hasError) return;
+
+      try {
+        setButtonLoading(btn, true, 'Creando cuenta...');
+        const payload = await apiRequest('/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({
+            first_name: n,
+            last_name: ap,
+            email: em,
+            phone: tel,
+            password: pw
+          })
+        });
+        persistSession(payload);
+        btn.style.display = 'none';
+        document.getElementById('register-success').classList.add('show');
+        showStatus('register-status', 'success', 'Cuenta creada correctamente. Redirigiendo...');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1400);
+      } catch (error) {
+        showStatus('register-status', 'error', error.message);
+        setButtonLoading(btn, false, 'Crear cuenta');
+      }
+    };
+
+    window.handleForgotPassword = async function () {
+      const email = document.getElementById('recover-email').value.trim();
+      const btn = document.getElementById('recover-btn');
+      let hasError = false;
+
+      hideStatus('recover-status');
+      hasError = fieldErr('recover-email', 'err-recover-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) || hasError;
+      if (hasError) return;
+
+      try {
+        setButtonLoading(btn, true, 'Generando token...');
+        const payload = await apiRequest('/auth/forgot-password', {
+          method: 'POST',
+          body: JSON.stringify({ email })
+        });
+        showStatus('recover-status', 'success', payload.message);
+
+        if (payload.reset_token) {
+          document.getElementById('reset-token').value = payload.reset_token;
+          document.getElementById('reset-token-help').style.display = 'block';
+          showStatus('reset-status', 'success', `Token generado. Expira en ${payload.expires_in_minutes || 30} minutos.`);
+          window.showPanel('reset');
+          document.getElementById('reset-pw').focus();
+        }
+      } catch (error) {
+        showStatus('recover-status', 'error', error.message);
+      } finally {
+        setButtonLoading(btn, false, 'Generar token');
+      }
+    };
+
+    window.handleResetPassword = async function () {
+      const token = document.getElementById('reset-token').value.trim();
+      const password = document.getElementById('reset-pw').value;
+      const confirmation = document.getElementById('reset-pw2').value;
+      const btn = document.getElementById('reset-btn');
+      let hasError = false;
+
+      hideStatus('reset-status');
+      hasError = fieldErr('reset-token', 'err-reset-token', token.length < 1) || hasError;
+      hasError = fieldErr('reset-pw', 'err-reset-pw', password.length < 8) || hasError;
+      hasError = fieldErr('reset-pw2', 'err-reset-pw2', password !== confirmation) || hasError;
+      if (hasError) return;
+
+      try {
+        setButtonLoading(btn, true, 'Actualizando...');
+        const payload = await apiRequest('/auth/reset-password', {
+          method: 'POST',
+          body: JSON.stringify({
+            token,
+            password,
+            password_confirmation: confirmation
+          })
+        });
+        showStatus('reset-status', 'success', `${payload.message} Ya puede iniciar sesión.`);
+        document.getElementById('reset-pw').value = '';
+        document.getElementById('reset-pw2').value = '';
+        document.getElementById('login-pw').value = '';
+        setTimeout(() => {
+          window.showPanel('login');
+          document.getElementById('login-email').value = document.getElementById('recover-email').value.trim();
+          hideStatus('recover-status');
+        }, 1100);
+      } catch (error) {
+        showStatus('reset-status', 'error', error.message);
+      } finally {
+        setButtonLoading(btn, false, 'Actualizar contraseña');
+      }
+    };
+
+    ensureStatusNode('panel-login', 'login-status');
+    ensureStatusNode('panel-register', 'register-status');
+    ensureStatusNode('panel-recover', 'recover-status');
+    ensureStatusNode('panel-reset', 'reset-status');
+    document.querySelectorAll('input').forEach(input => input.addEventListener('input', () => {
+      if (input.closest('#panel-login')) hideStatus('login-status');
+      if (input.closest('#panel-register')) hideStatus('register-status');
+      if (input.closest('#panel-recover')) hideStatus('recover-status');
+      if (input.closest('#panel-reset')) hideStatus('reset-status');
+    }));
+  })();
+</script>
+</body>
+</html>
