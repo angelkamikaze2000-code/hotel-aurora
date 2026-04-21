@@ -1,143 +1,91 @@
-# Backend Hotel Aurora
+# Hotel Aurora
 
-## Stack elegido
+Proyecto con frontend estatico y backend Flask para autenticacion, habitaciones, reservas, anuncios y pagos simulados.
 
-El backend esta preparado para desarrollarse con:
+## Estructura
 
-- Python 3.12+
-- Flask
-- PostgreSQL o SQLite para desarrollo local
-- SQLAlchemy
-- Flask-Migrate
-- JWT para autenticacion
+- `frontend-hotel-main/`: vistas HTML del hotel
+- `backend/`: API Flask y base de datos local SQLite
+- `start_frontend.ps1`: servidor local simple para el frontend
 
-## Por que este stack
+## Requisitos
 
-- Flask es ligero y rapido para un proyecto academico.
-- PostgreSQL modela bien relaciones como usuarios, habitaciones, reservas y pagos.
-- SQLAlchemy permite crecer sin atar toda la logica a SQL manual.
-- JWT encaja bien con el frontend actual, que luego consumira endpoints REST.
+- Python 3.12 instalado en `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`
 
-## Entidades principales que exige el frontend actual
+## Levantar el proyecto
 
-- `users`
-- `rooms`
-- `reservations`
-- `reservation_services`
-- `payments`
-- `ads`
-- `ad_plans`
+### 1. Backend
 
-## Estructura propuesta
-
-```text
-backend/
-  app/
-    __init__.py
-    config.py
-    extensions.py
-    routes/
-      auth.py
-      rooms.py
-      reservations.py
-      ads.py
-      payments.py
-  requirements.txt
-  .env.example
-```
-
-## Orden recomendado de trabajo
-
-1. Configuracion del proyecto y conexion a base de datos.
-2. Modelado de tablas.
-3. Registro e inicio de sesion.
-4. Habitaciones y disponibilidad.
-5. Reservas.
-6. Anuncios pagados.
-7. Pago simulado.
-
-## Endpoints que probablemente necesitaremos
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/forgot-password`
-- `POST /api/auth/reset-password`
-- `GET /api/rooms`
-- `GET /api/rooms/:id`
-- `GET /api/rooms/availability`
-- `POST /api/reservations`
-- `GET /api/reservations/:id`
-- `POST /api/ads`
-- `GET /api/ads`
-- `POST /api/payments/simulate`
-
-## Ejecucion local rapida
-
-Si no defines `DATABASE_URL`, el backend usa automaticamente SQLite local en `backend/instance/hotel_aurora.db`.
-
-Si no defines `SECRET_KEY` o `JWT_SECRET_KEY`, o dejas valores inseguros de ejemplo, el backend genera claves fuertes y persistentes en `backend/instance/runtime_secrets.json`.
-
-Si prefieres controlarlas manualmente, copia `.env.example` a `.env` y reemplaza ambas claves por valores largos y aleatorios.
-
-Para levantarlo rapidamente:
+Desde [backend/start_backend.ps1](C:\Users\Loyal Gaming\Desktop\hotel proyecto\backend\start_backend.ps1):
 
 ```powershell
+cd "C:\Users\Loyal Gaming\Desktop\hotel proyecto\backend"
 .\start_backend.ps1
 ```
 
-## Smoke test del flujo principal
+Backend disponible en [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
-Para validar el flujo completo de integracion:
+### 2. Frontend
 
-- registro
-- inicio de sesion
-- consulta de habitaciones
-- disponibilidad
-- reserva
-- pago simulado de reserva
-- creacion de anuncio
-- pago simulado de anuncio
-
-ejecuta:
+Desde [start_frontend.ps1](C:\Users\Loyal Gaming\Desktop\hotel proyecto\start_frontend.ps1):
 
 ```powershell
-.\smoke_test_flow.ps1
+cd "C:\Users\Loyal Gaming\Desktop\hotel proyecto"
+.\start_frontend.ps1
 ```
 
-Si prefieres PostgreSQL, define `DATABASE_URL` en `.env` o en variables de entorno y el backend usara esa conexion.
+Frontend disponible en [http://127.0.0.1:5500/index.html](http://127.0.0.1:5500/index.html).
 
-## Panel admin
+## Flujo recomendado de prueba
 
-El backend ahora expone endpoints internos protegidos en `/api/admin` para:
+1. Abrir `habitaciones.html` y seleccionar una habitacion.
+2. Completar la reserva en `reservas.html`.
+3. Continuar al pago desde `pago.html?context=reserva`.
+4. Probar registro e inicio de sesion en `auth.html`.
+5. Crear un anuncio en `anuncios.html` y completar su pago.
 
-- resumen del dashboard
-- listado y gestion de usuarios
-- CRUD de reservas
-- CRUD de habitaciones
-- CRUD de anuncios
-- listado de planes publicitarios
+## Panel de administracion
 
-Para crear o promover un admin local:
+Se agrego un panel interno en `frontend-hotel-main/admin.html` conectado a la API bajo `/api/admin`.
+
+Actualmente el panel permite:
+
+- ver metricas internas
+- gestionar usuarios
+- crear, editar y eliminar reservas
+- crear, editar y eliminar habitaciones
+- crear, editar y eliminar anuncios
+
+Para crear o promover un administrador:
 
 ```powershell
+cd "C:\Users\Loyal Gaming\Desktop\hotel proyecto\backend"
 python create_admin.py --email admin@aurora.com --password Admin123! --first-name Admin --last-name Aurora
 ```
 
-## Recuperacion de contrasena
+Luego inicie sesion con esa cuenta en `auth.html` y abra `admin.html`.
 
-El backend expone un flujo de recuperacion academico:
+## Validacion automatica
 
-- `POST /api/auth/forgot-password` genera un token temporal firmado
-- `POST /api/auth/reset-password` valida el token y actualiza la contrasena
+El smoke test vive en [backend/smoke_test_flow.ps1](C:\Users\Loyal Gaming\Desktop\hotel proyecto\backend\smoke_test_flow.ps1).
 
-El vencimiento del token se controla con `PASSWORD_RESET_TOKEN_MAX_AGE` y por defecto es de 1800 segundos.
-
-## Semilla de habitaciones
-
-Con SQLite local o con la base que prefieras, puedes cargar habitaciones base con:
-
-```bash
-python seed_rooms.py
+```powershell
+cd "C:\Users\Loyal Gaming\Desktop\hotel proyecto\backend"
+.\smoke_test_flow.ps1
 ```
 
-El script crea las tablas si no existen y luego inserta o actualiza habitaciones usando el `slug` como clave estable.
+El script:
+
+- asegura habitaciones base con `seed_rooms.py`
+- levanta el backend temporalmente
+- valida registro, login y `me`
+- valida habitaciones y disponibilidad
+- crea una reserva y simula su pago
+- crea un anuncio y simula su pago
+
+## Estado actual
+
+- Backend integrado con SQLite local
+- Frontend conectado a la API
+- Flujo principal validado end-to-end
+- Pagos simulados para demo academica

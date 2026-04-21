@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Aurora – Inicio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream:      #f5f0e8;
+      --cream-dim:  #c9bfad;
+      --gold:       #b8996a;
+      --gold-light: #d4b98a;
+      --gold-dim:   rgba(184,153,106,0.25);
+      --dark:       #12100d;
+      --dark-card:  rgba(20,17,12,0.82);
+      --text-muted: #8a7d6b;
+      --border:     rgba(184,153,106,0.22);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--cream);overflow-x:hidden;}
+
+    /* CURSOR */
+    .cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .15s;}
+    .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(184,153,106,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+
+    /* PARTICLES */
+    .particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .particle{position:absolute;background:var(--gold);border-radius:50%;opacity:0;animation:pRise var(--dur,9s) ease-in infinite var(--delay,0s);left:var(--x,50%);}
+    @keyframes pRise{0%{transform:translateY(100vh) scale(0);opacity:0;}8%{opacity:.5;}92%{opacity:.2;}100%{transform:translateY(-40px) scale(1.4);opacity:0;}}
+
+    /* GRAIN */
+    .grain{position:fixed;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");background-size:180px 180px;opacity:.35;pointer-events:none;z-index:1;animation:grainAnim .14s steps(1) infinite;}
+    @keyframes grainAnim{0%{transform:translate(0,0);}14%{transform:translate(-2%,-3%);}28%{transform:translate(3%,1%);}42%{transform:translate(-1%,4%);}57%{transform:translate(4%,-1%);}71%{transform:translate(-3%,2%);}85%{transform:translate(1%,-4%);}}
+
+    /* NAVBAR */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;transition:background .4s,padding .4s;}
+    nav.scrolled{background:rgba(12,10,8,.9);backdrop-filter:blur(20px);padding:.85rem 3rem;border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:.2em;text-transform:uppercase;color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.6rem;}
+    .nav-logo span{color:var(--gold-light);font-style:italic;}
+    .nav-diamond{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);animation:dPulse 3s ease-in-out infinite;}
+    @keyframes dPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,153,106,0);}50%{box-shadow:0 0 8px 3px rgba(184,153,106,.5);}}
+    .nav-links{display:flex;align-items:center;gap:2rem;}
+    .nav-links a{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color .25s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.22,1,.36,1);}
+    .nav-links a:hover{color:var(--cream);}
+    .nav-links a:hover::after{transform:scaleX(1);}
+    .nav-cta{padding:.5rem 1.4rem;border:1px solid var(--gold-dim);border-radius:2px;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);text-decoration:none;transition:background .25s,color .25s,box-shadow .25s;}
+    .nav-cta:hover{background:var(--gold);color:var(--dark);box-shadow:0 4px 18px rgba(184,153,106,.35);}
+    .nav-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+    .nav-burger span{width:24px;height:1px;background:var(--cream);display:block;transition:transform .3s,opacity .3s;}
+    .mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:rgba(12,10,8,.97);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:2rem;}
+    .mobile-menu.open{display:flex;animation:fadeIn .3s ease both;}
+    .mobile-menu a{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:.15em;text-transform:uppercase;color:var(--cream);text-decoration:none;transition:color .2s;}
+    .mobile-menu a:hover{color:var(--gold-light);}
+    .menu-close{position:absolute;top:1.5rem;right:2rem;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;transition:color .2s;}
+    .menu-close:hover{color:var(--cream);}
+
+    /* HERO */
+    .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .hero-bg{position:absolute;inset:0;z-index:0;background-image:url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1800&q=80&fit=crop');background-size:cover;background-position:center;}
+    .hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(8,7,5,.85) 0%,rgba(18,16,13,.72) 50%,rgba(14,12,9,.88) 100%);z-index:0;}
+    .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(184,153,106,.04) 50%,transparent 70%);animation:heroSweep 8s ease-in-out infinite;}
+    @keyframes heroSweep{0%,100%{transform:translateX(-100%);}50%{transform:translateX(100%);}}
+    .hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%);opacity:.3;}
+    .hero-orb-1{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(184,153,106,.12) 0%,transparent 70%);filter:blur(60px);top:-100px;right:-100px;animation:orbF1 16s ease-in-out infinite;pointer-events:none;}
+    .hero-orb-2{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(184,153,106,.08) 0%,transparent 70%);filter:blur(50px);bottom:-50px;left:-50px;animation:orbF2 20s ease-in-out infinite;pointer-events:none;}
+    @keyframes orbF1{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-60px,80px) scale(1.1);}}
+    @keyframes orbF2{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(80px,-60px) scale(1.15);}}
+    .hero-content{position:relative;z-index:2;text-align:center;padding:0 1.5rem;max-width:820px;}
+    .hero-eyebrow{font-size:.65rem;letter-spacing:.45em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:.75rem;animation:fadeUp .8s .2s both;}
+    .hero-eyebrow::before,.hero-eyebrow::after{content:'';height:1px;width:40px;}
+    .hero-eyebrow::before{background:linear-gradient(to right,transparent,var(--gold));}
+    .hero-eyebrow::after{background:linear-gradient(to left,transparent,var(--gold));}
+    .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3.2rem,8vw,6.5rem);font-weight:300;line-height:1.05;letter-spacing:.06em;animation:fadeUp .9s .35s both;}
+    .hero-title em{font-style:italic;color:var(--gold-light);display:block;}
+    .hero-sub{font-size:.9rem;color:var(--cream-dim);line-height:1.7;margin:1.5rem auto 2.5rem;max-width:480px;animation:fadeUp .9s .5s both;}
+    .hero-actions{display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;animation:fadeUp .9s .65s both;}
+    .hero-scroll{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:.5rem;animation:fadeUp .9s .9s both;}
+    .hero-scroll span{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--text-muted);}
+    .scroll-line{width:1px;height:50px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrollLine 2s ease-in-out infinite;}
+    @keyframes scrollLine{0%,100%{transform:scaleY(1);opacity:1;}50%{transform:scaleY(.5);opacity:.4;}}
+    .hero-stats{position:absolute;bottom:0;left:0;right:0;z-index:2;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(12,10,8,.65);backdrop-filter:blur(12px);animation:fadeIn 1s 1s both;}
+    .stat-item{padding:1.4rem 1rem;text-align:center;border-right:1px solid var(--border);transition:background .25s;}
+    .stat-item:last-child{border-right:none;}
+    .stat-item:hover{background:rgba(184,153,106,.05);}
+    .stat-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--gold-light);line-height:1;}
+    .stat-label{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-top:.3rem;}
+
+    /* BUTTONS */
+    .btn-gold{padding:.9rem 2.4rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--dark);text-decoration:none;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .3s;display:inline-block;}
+    .btn-gold::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);transition:left .5s;}
+    .btn-gold:hover::before{left:100%;}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,153,106,.4);}
+    .btn-outline{padding:.9rem 2.4rem;background:transparent;border:1px solid var(--border);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:400;letter-spacing:.25em;text-transform:uppercase;color:var(--cream-dim);text-decoration:none;display:inline-block;transition:border-color .25s,color .25s,transform .2s;}
+    .btn-outline:hover{border-color:var(--gold);color:var(--cream);transform:translateY(-2px);}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+    /* SHARED SECTION */
+    section{position:relative;z-index:2;}
+    .section-eyebrow{font-size:.62rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem;}
+    .section-eyebrow::before{content:'';height:1px;width:28px;background:linear-gradient(to right,transparent,var(--gold));}
+    .section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3rem);font-weight:300;line-height:1.15;color:var(--cream);}
+    .section-title em{font-style:italic;color:var(--gold-light);}
+    .section-sub{font-size:.85rem;color:var(--text-muted);line-height:1.7;margin-top:.75rem;}
+    .ornament-divider{display:flex;align-items:center;gap:1rem;margin:1rem 0;}
+    .ornament-divider::before,.ornament-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+    .ornament-divider .diamond{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);}
+
+    /* ABOUT */
+    .about{padding:8rem 3rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;max-width:1200px;margin:0 auto;}
+    .about-img-wrap{position:relative;border:1px solid var(--border);border-radius:4px;overflow:hidden;aspect-ratio:3/4;}
+    .about-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+    .about-badge{position:absolute;bottom:-1.5rem;right:-1.5rem;width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(184,153,106,.4);animation:badgeSpin 20s linear infinite;}
+    .about-badge-inner{animation:badgeSpinRev 20s linear infinite;text-align:center;}
+    @keyframes badgeSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+    @keyframes badgeSpinRev{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
+    .about-badge .num{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;color:var(--dark);line-height:1;}
+    .about-badge .lbl{font-size:.42rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dark);opacity:.7;}
+    .about-features{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem;}
+    .feature-chip{padding:.75rem 1rem;border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;gap:.6rem;font-size:.73rem;color:var(--text-muted);transition:border-color .25s,background .25s,color .25s;}
+    .feature-chip:hover{border-color:var(--gold);background:rgba(184,153,106,.05);color:var(--cream);}
+    .feature-chip svg{flex-shrink:0;color:var(--gold);}
+
+    /* ROOMS */
+    .rooms-section{padding:6rem 3rem;background:linear-gradient(180deg,var(--dark) 0%,#0e0c09 50%,var(--dark) 100%);}
+    .rooms-header{text-align:center;margin-bottom:4rem;}
+    .rooms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1200px;margin:0 auto;}
+    .room-card{background:var(--dark-card);border:1px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,border-color .35s;}
+    .room-card:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 0 1px rgba(184,153,106,.2);border-color:rgba(184,153,106,.4);}
+    .room-card-img{aspect-ratio:4/3;overflow:hidden;position:relative;}
+    .room-card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.22,1,.36,1);}
+    .room-card:hover .room-card-img img{transform:scale(1.07);}
+    .room-badge{position:absolute;top:.75rem;left:.75rem;z-index:2;padding:.25rem .65rem;background:rgba(12,10,8,.8);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:2px;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-light);}
+    .room-card-body{padding:1.4rem;}
+    .room-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--cream);margin-bottom:.3rem;}
+    .room-desc{font-size:.76rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;}
+    .room-amenities{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+    .amenity-tag{padding:.2rem .6rem;border:1px solid var(--border);border-radius:2px;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);}
+    .room-footer{display:flex;align-items:center;justify-content:space-between;padding-top:1rem;border-top:1px solid var(--border);}
+    .room-price{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold-light);font-weight:300;}
+    .room-price span{font-size:.65rem;font-family:'DM Sans',sans-serif;color:var(--text-muted);letter-spacing:.1em;}
+    .btn-room{padding:.45rem 1.1rem;border:1px solid var(--gold-dim);border-radius:2px;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);background:transparent;cursor:pointer;transition:background .25s,color .25s,border-color .25s;text-decoration:none;}
+    .btn-room:hover{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+    .rooms-cta{text-align:center;margin-top:3rem;}
+
+    /* PROMOS */
+    .promo-section{padding:6rem 3rem;max-width:1200px;margin:0 auto;}
+    .promo-header{margin-bottom:3rem;}
+    .promo-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:1.5rem;}
+    .promo-card{border:1px solid var(--border);border-radius:4px;overflow:hidden;position:relative;background:var(--dark-card);transition:transform .3s,box-shadow .3s,border-color .3s;}
+    .promo-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.4);border-color:rgba(184,153,106,.35);}
+    .promo-card.featured{grid-row:1/3;display:flex;flex-direction:column;}
+    .promo-card-visual{height:160px;position:relative;overflow:hidden;}
+    .promo-card.featured .promo-card-visual{height:240px;}
+    .promo-card-visual img{width:100%;height:100%;object-fit:cover;display:block;}
+    .promo-card-visual .overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(12,10,8,.25),rgba(12,10,8,.6));}
+    .promo-card-top{padding:1.5rem;flex:1;display:flex;flex-direction:column;justify-content:space-between;}
+    .promo-tag{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .7rem;border:1px solid var(--gold-dim);border-radius:2px;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;width:fit-content;}
+    .promo-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;color:var(--cream);margin-bottom:.5rem;}
+    .promo-card.featured .promo-title{font-size:1.8rem;}
+    .promo-desc{font-size:.76rem;color:var(--text-muted);line-height:1.6;margin-bottom:1.2rem;}
+    .promo-meta{display:flex;align-items:center;gap:1.2rem;font-size:.65rem;color:var(--text-muted);letter-spacing:.08em;flex-wrap:wrap;}
+    .promo-meta-item{display:flex;align-items:center;gap:.3rem;}
+    .promo-meta-item svg{color:var(--gold);}
+    .promo-discount{position:absolute;top:1rem;right:1rem;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.6rem;font-weight:500;color:var(--dark);letter-spacing:.05em;box-shadow:0 4px 16px rgba(184,153,106,.4);}
+    .promo-discount strong{font-size:1rem;font-family:'Cormorant Garamond',serif;line-height:1;}
+    .promo-discount.sm{width:44px;height:44px;}
+    .promo-discount.sm strong{font-size:.85rem;}
+
+    /* CTA STRIP */
+    .cta-strip{padding:5rem 3rem;background:linear-gradient(135deg,rgba(184,153,106,.08) 0%,rgba(184,153,106,.03) 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border);text-align:center;}
+    .cta-strip h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:300;color:var(--cream);margin-bottom:.5rem;}
+    .cta-strip p{font-size:.85rem;color:var(--text-muted);margin-bottom:2rem;}
+    .newsletter-form{display:flex;align-items:center;gap:.75rem;max-width:440px;margin:0 auto;}
+    .newsletter-form input{flex:1;padding:.75rem 1rem;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--cream);outline:none;transition:border-color .25s,box-shadow .25s;}
+    .newsletter-form input::placeholder{color:var(--text-muted);}
+    .newsletter-form input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,153,106,.1);}
+
+    /* FOOTER */
+    footer{padding:4rem 3rem 2rem;border-top:1px solid var(--border);}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;max-width:1200px;margin:0 auto 3rem;}
+    .footer-brand .logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:var(--cream);margin-bottom:.75rem;}
+    .footer-brand .logo em{font-style:italic;color:var(--gold-light);}
+    .footer-brand p{font-size:.78rem;color:var(--text-muted);line-height:1.7;margin-bottom:1.2rem;}
+    .footer-social{display:flex;gap:.75rem;}
+    .social-btn{width:34px;height:34px;border-radius:2px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:border-color .2s,color .2s,background .2s;cursor:pointer;text-decoration:none;}
+    .social-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(184,153,106,.06);}
+    .footer-col h4{font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--cream);margin-bottom:1.2rem;}
+    .footer-col ul{list-style:none;}
+    .footer-col ul li{margin-bottom:.6rem;}
+    .footer-col ul li a{font-size:.78rem;color:var(--text-muted);text-decoration:none;transition:color .2s;}
+    .footer-col ul li a:hover{color:var(--gold-light);}
+    .footer-bottom{max-width:1200px;margin:0 auto;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:.68rem;color:var(--text-muted);letter-spacing:.06em;}
+    .footer-bottom a{color:var(--text-muted);text-decoration:none;transition:color .2s;}
+    .footer-bottom a:hover{color:var(--gold-light);}
+    .footer-bottom-links{display:flex;gap:1.5rem;}
+
+    /* SCROLL REVEAL */
+    .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
+    .reveal-delay-1{transition-delay:.1s;}
+    .reveal-delay-2{transition-delay:.2s;}
+    .reveal-delay-3{transition-delay:.3s;}
+
+    /* RESPONSIVE */
+    @media(max-width:1024px){
+      .about{grid-template-columns:1fr;gap:3rem;padding:5rem 2rem;}
+      .about-badge{display:none;}
+      .rooms-grid{grid-template-columns:1fr 1fr;}
+      .footer-grid{grid-template-columns:1fr 1fr;gap:2rem;}
+    }
+    @media(max-width:768px){
+      nav{padding:1rem 1.5rem;}
+      nav.scrolled{padding:.8rem 1.5rem;}
+      .nav-links{display:none;}
+      .nav-burger{display:flex;}
+      .hero-stats{grid-template-columns:1fr 1fr;}
+      .rooms-grid{grid-template-columns:1fr;}
+      .promo-grid{grid-template-columns:1fr;}
+      .promo-card.featured{grid-row:auto;}
+      .footer-grid{grid-template-columns:1fr;}
+      .footer-bottom{flex-direction:column;gap:.5rem;text-align:center;}
+      .newsletter-form{flex-direction:column;}
+      .newsletter-form input,.newsletter-form .btn-gold{width:100%;}
+      .rooms-section,.promo-section,.about,.cta-strip{padding:4rem 1.5rem;}
+      footer{padding:3rem 1.5rem 1.5rem;}
+    }
+    @media(max-width:480px){
+      .hero-stats{grid-template-columns:1fr 1fr;}
+      .stat-item{padding:1rem .5rem;}
+      .stat-num{font-size:1.4rem;}
+      .about-features{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+<div class="grain"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-diamond"></div>
+    Hotel <span>Aurora</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="habitaciones.html">Habitaciones</a>
+    <a href="reservas.html">Reservas</a>
+    <a href="anuncios.html">Anuncios</a>
+    <a href="auth.html" class="nav-cta">Iniciar Sesión</a>
+  </div>
+  <button class="nav-burger" id="burgerBtn" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="menu-close" id="menuClose">✕</button>
+  <a href="index.html"        onclick="closeMobileMenu()">Inicio</a>
+  <a href="habitaciones.html" onclick="closeMobileMenu()">Habitaciones</a>
+  <a href="reservas.html"     onclick="closeMobileMenu()">Reservas</a>
+  <a href="anuncios.html"     onclick="closeMobileMenu()">Anuncios</a>
+  <a href="auth.html"         onclick="closeMobileMenu()">Iniciar Sesión</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-orb-1"></div>
+  <div class="hero-orb-2"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Santo Domingo, República Dominicana</div>
+    <h1 class="hero-title">
+      Donde el lujo<br>
+      <em>encuentra el alma</em>
+    </h1>
+    <p class="hero-sub">
+      Una experiencia hotelera que trasciende lo ordinario.
+      Habitaciones diseñadas para quienes aprecian lo excepcional.
+    </p>
+    <div class="hero-actions">
+      <a href="reservas.html" class="btn-gold">Reservar ahora</a>
+      <a href="habitaciones.html" class="btn-outline">Ver habitaciones</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>Descubrir</span>
+    <div class="scroll-line"></div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num" data-count="48">0</div>
+      <div class="stat-label">Habitaciones</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-count="26">0</div>
+      <div class="stat-label">Años de experiencia</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-count="98">0</div>
+      <div class="stat-label">% Satisfacción</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-count="5">0</div>
+      <div class="stat-label">Estrellas</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOBRE NOSOTROS -->
+<section>
+  <div class="about">
+    <div class="about-visual reveal">
+      <div class="about-img-wrap">
+        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&fit=crop" alt="Lobby Hotel Aurora"/>
+      </div>
+      <div class="about-badge">
+        <div class="about-badge-inner">
+          <div class="num">★★★★★</div>
+          <div class="lbl">Calidad</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-text">
+      <div class="section-eyebrow reveal">Nuestra historia</div>
+      <h2 class="section-title reveal reveal-delay-1">Un legado de<br><em>hospitalidad auténtica</em></h2>
+      <div class="ornament-divider reveal reveal-delay-1"><div class="diamond"></div></div>
+      <p class="section-sub reveal reveal-delay-2">
+        Desde 1998, Hotel Aurora ha sido el destino preferido de viajeros que buscan algo más que una habitación. Somos un santuario donde cada detalle ha sido pensado para elevar su estancia a una experiencia memorable.
+      </p>
+      <p class="section-sub reveal reveal-delay-2" style="margin-top:.75rem;">
+        Nuestro equipo de más de 80 profesionales se dedica a anticipar sus necesidades y superar sus expectativas, día tras día.
+      </p>
+      <div class="about-features reveal reveal-delay-3">
+        <div class="feature-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
+          Servicio 5 estrellas
+        </div>
+        <div class="feature-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Atención 24/7
+        </div>
+        <div class="feature-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          48 habitaciones
+        </div>
+        <div class="feature-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          +12,000 huéspedes
+        </div>
+        <div class="feature-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Seguridad total
+        </div>
+        <div class="feature-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          Restaurante gourmet
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HABITACIONES -->
+<section class="rooms-section">
+  <div class="rooms-header reveal">
+    <div class="section-eyebrow" style="justify-content:center;">Nuestras habitaciones</div>
+    <h2 class="section-title" style="text-align:center;">Espacios <em>diseñados para usted</em></h2>
+    <p class="section-sub" style="text-align:center;max-width:500px;margin:.75rem auto 0;">
+      Cada habitación concebida con materiales selectos y tecnología discreta al servicio de su descanso.
+    </p>
+  </div>
+
+  <div class="rooms-grid">
+    <!-- Suite Estándar -->
+    <div class="room-card reveal reveal-delay-1">
+      <div class="room-card-img">
+        <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=700&q=80&fit=crop" alt="Suite Estándar"/>
+        <div class="room-badge">Disponible</div>
+      </div>
+      <div class="room-card-body">
+        <div class="room-name">Suite Estándar</div>
+        <div class="room-desc">Elegancia contenida en 35 m². Vista al jardín interior, cama king y baño de mármol.</div>
+        <div class="room-amenities">
+          <span class="amenity-tag">WiFi</span>
+          <span class="amenity-tag">A/C</span>
+          <span class="amenity-tag">TV 4K</span>
+          <span class="amenity-tag">Minibar</span>
+        </div>
+        <div class="room-footer">
+          <div class="room-price">$120 <span>/ noche</span></div>
+          <a href="reservas.html" class="btn-room">Reservar</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suite Deluxe -->
+    <div class="room-card reveal reveal-delay-2">
+      <div class="room-card-img">
+        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=700&q=80&fit=crop" alt="Suite Deluxe"/>
+        <div class="room-badge" style="color:var(--gold-light);border-color:rgba(184,153,106,.4);">Premium</div>
+      </div>
+      <div class="room-card-body">
+        <div class="room-name">Suite Deluxe</div>
+        <div class="room-desc">52 m² de confort absoluto. Sala de estar independiente y terraza privada.</div>
+        <div class="room-amenities">
+          <span class="amenity-tag">WiFi</span>
+          <span class="amenity-tag">A/C</span>
+          <span class="amenity-tag">Jacuzzi</span>
+          <span class="amenity-tag">Terraza</span>
+        </div>
+        <div class="room-footer">
+          <div class="room-price">$210 <span>/ noche</span></div>
+          <a href="reservas.html" class="btn-room">Reservar</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suite Presidencial -->
+    <div class="room-card reveal reveal-delay-3">
+      <div class="room-card-img">
+        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=700&q=80&fit=crop" alt="Suite Presidencial"/>
+        <div class="room-badge" style="color:#d4b98a;border-color:rgba(212,185,138,.5);background:rgba(212,185,138,.08);">Exclusiva</div>
+      </div>
+      <div class="room-card-body">
+        <div class="room-name">Suite Presidencial</div>
+        <div class="room-desc">La cúspide del lujo. 120 m², comedor privado y mayordomía personal las 24 horas.</div>
+        <div class="room-amenities">
+          <span class="amenity-tag">Butler</span>
+          <span class="amenity-tag">Spa</span>
+          <span class="amenity-tag">Vista panorámica</span>
+        </div>
+        <div class="room-footer">
+          <div class="room-price">$480 <span>/ noche</span></div>
+          <a href="reservas.html" class="btn-room">Reservar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rooms-cta reveal">
+    <a href="habitaciones.html" class="btn-outline">Ver todas las habitaciones</a>
+  </div>
+</section>
+
+<!-- PROMOCIONES -->
+<section class="promo-section">
+  <div class="promo-header reveal">
+    <div class="section-eyebrow">Ofertas especiales</div>
+    <h2 class="section-title">Promociones <em>exclusivas</em></h2>
+  </div>
+
+  <div class="promo-grid">
+    <!-- Featured -->
+    <div class="promo-card featured reveal">
+      <div class="promo-card-visual">
+        <img src="https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&q=80&fit=crop" alt="Luna de Miel"/>
+        <div class="overlay"></div>
+        <div class="promo-discount"><strong>30%</strong>OFF</div>
+      </div>
+      <div class="promo-card-top">
+        <div>
+          <div class="promo-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
+            Oferta destacada
+          </div>
+          <div class="promo-title">Luna de Miel en Aurora</div>
+          <div class="promo-desc">Paquete especial para parejas: 3 noches en Suite Deluxe, cena romántica a la luz de las velas, spa y desayuno incluido.</div>
+        </div>
+        <div>
+          <div class="promo-meta">
+            <span class="promo-meta-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Hasta 31 dic 2025
+            </span>
+            <span class="promo-meta-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Solo para parejas
+            </span>
+          </div>
+          <a href="reservas.html" class="btn-gold" style="margin-top:1.2rem;">Aprovechar oferta</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Promo 2 -->
+    <div class="promo-card reveal reveal-delay-1">
+      <div class="promo-card-visual">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80&fit=crop" alt="Escapada de Semana"/>
+        <div class="overlay"></div>
+        <div class="promo-discount sm"><strong>20%</strong>OFF</div>
+      </div>
+      <div class="promo-card-top" style="padding:1.2rem;">
+        <div>
+          <div class="promo-tag">Temporada baja</div>
+          <div class="promo-title" style="font-size:1.1rem;">Escapada de Semana</div>
+          <div class="promo-desc" style="font-size:.73rem;">Estancia mínima de 2 noches de lunes a jueves. Incluye desayuno buffet.</div>
+        </div>
+        <div class="promo-meta">
+          <span class="promo-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Lun – Jue
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Promo 3 -->
+    <div class="promo-card reveal reveal-delay-2">
+      <div class="promo-card-visual">
+        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80&fit=crop" alt="Plan Corporativo"/>
+        <div class="overlay"></div>
+        <div class="promo-discount sm"><strong>15%</strong>OFF</div>
+      </div>
+      <div class="promo-card-top" style="padding:1.2rem;">
+        <div>
+          <div class="promo-tag">Empresarial</div>
+          <div class="promo-title" style="font-size:1.1rem;">Plan Corporativo</div>
+          <div class="promo-desc" style="font-size:.73rem;">Tarifas especiales para empresas. Sala de reuniones, WiFi premium y servicio exprés.</div>
+        </div>
+        <div class="promo-meta">
+          <span class="promo-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Grupos +5 personas
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:2.5rem;" class="reveal">
+    <a href="anuncios.html" class="btn-outline">Ver todos los anuncios</a>
+  </div>
+</section>
+
+<!-- CTA / NEWSLETTER -->
+<section class="cta-strip reveal">
+  <div class="section-eyebrow" style="justify-content:center;margin-bottom:1rem;">Manténgase informado</div>
+  <h2>No pierda nuestras <em style="font-style:italic;color:var(--gold-light);">ofertas exclusivas</em></h2>
+  <p>Suscríbase y reciba las mejores promociones directo en su correo.</p>
+  <div class="newsletter-form">
+    <input type="email" id="newsletter-email" placeholder="su@correo.com"/>
+    <button class="btn-gold" onclick="subscribeNewsletter()">Suscribirse</button>
+  </div>
+  <div id="newsletter-msg" style="margin-top:1rem;font-size:.75rem;color:var(--gold-light);display:none;">
+    ¡Gracias! Le mantendremos informado.
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">Hotel <em>Aurora</em></div>
+      <p>Un refugio de lujo y distinción en el corazón de Santo Domingo. Donde cada estancia se convierte en un recuerdo imborrable.</p>
+      <div class="footer-social">
+        <a class="social-btn" href="#" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a class="social-btn" href="#" aria-label="Facebook">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a class="social-btn" href="#" aria-label="Twitter/X">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Navegación</h4>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="habitaciones.html">Habitaciones</a></li>
+        <li><a href="reservas.html">Reservas</a></li>
+        <li><a href="anuncios.html">Anuncios</a></li>
+        <li><a href="auth.html">Mi cuenta</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Servicios</h4>
+      <ul>
+        <li><a href="#">Restaurante</a></li>
+        <li><a href="#">Spa &amp; Wellness</a></li>
+        <li><a href="#">Salones de eventos</a></li>
+        <li><a href="#">Piscina</a></li>
+        <li><a href="#">Concierge</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="#">Av. Winston Churchill 1099</a></li>
+        <li><a href="#">Santo Domingo, RD</a></li>
+        <li><a href="tel:+18095551234">+1 (809) 555-1234</a></li>
+        <li><a href="mailto:info@hotelaurorasd.com">info@hotelaurorasd.com</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 Hotel Aurora. Todos los derechos reservados.</span>
+    <div class="footer-bottom-links">
+      <a href="#">Privacidad</a>
+      <a href="#">Términos</a>
+      <a href="#">Cookies</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* CURSOR */
+  const cur = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx=0, my=0, rx=0, ry=0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cur.style.left = mx + 'px';
+    cur.style.top  = my + 'px';
+  });
+  (function animRing(){
+    rx += (mx - rx) * .12;
+    ry += (my - ry) * .12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animRing);
+  })();
+  document.querySelectorAll('a,button').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.style.transform='translate(-50%,-50%) scale(2.5)'; ring.style.transform='translate(-50%,-50%) scale(1.5)'; });
+    el.addEventListener('mouseleave', () => { cur.style.transform='translate(-50%,-50%) scale(1)';   ring.style.transform='translate(-50%,-50%) scale(1)';   });
+  });
+
+  /* PARTICLES */
+  (function(){
+    const c = document.getElementById('particles');
+    for(let i=0; i<25; i++){
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const x   = (Math.random()*100).toFixed(1);
+      const dur = (8 + Math.random()*10).toFixed(1);
+      const del = -(Math.random()*14).toFixed(1);
+      const sz  = Math.random() > .55 ? 3 : 2;
+      p.style.cssText = `--x:${x}%;--dur:${dur}s;--delay:${del}s;width:${sz}px;height:${sz}px;`;
+      c.appendChild(p);
+    }
+  })();
+
+  /* NAVBAR SCROLL */
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  /* MOBILE MENU */
+  document.getElementById('burgerBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.add('open'));
+  document.getElementById('menuClose').addEventListener('click',  () => document.getElementById('mobileMenu').classList.remove('open'));
+  function closeMobileMenu(){ document.getElementById('mobileMenu').classList.remove('open'); }
+
+  /* SCROLL REVEAL */
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+  }, { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+  /* COUNT UP */
+  function countUp(el, target, dur=1800){
+    let start = null;
+    const suffix = target === 98 ? '%' : '';
+    function step(ts){
+      if(!start) start = ts;
+      const p = Math.min((ts - start) / dur, 1);
+      el.textContent = Math.floor(p * target) + suffix;
+      if(p < 1) requestAnimationFrame(step);
+      else el.textContent = target + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+  const statsObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        document.querySelectorAll('[data-count]').forEach(el => countUp(el, +el.dataset.count));
+        statsObs.disconnect();
+      }
+    });
+  }, { threshold: .5 });
+  const statsBar = document.querySelector('.hero-stats');
+  if(statsBar) statsObs.observe(statsBar);
+
+  /* NEWSLETTER */
+  function subscribeNewsletter(){
+    const inp = document.getElementById('newsletter-email');
+    const msg = document.getElementById('newsletter-msg');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value.trim())){
+      inp.style.borderColor = '#c0614a';
+      return;
+    }
+    inp.style.borderColor = 'var(--gold)';
+    msg.style.display = 'block';
+    inp.value = '';
+  }
+
+
+  /* ── DEMO DATA FLOW ── */
+  const HOTEL_SELECTED_ROOM_KEY = 'hotelAuroraSelectedRoom';
+  function saveSelectedRoom(room){
+    localStorage.setItem(HOTEL_SELECTED_ROOM_KEY, JSON.stringify(room));
+  }
+
+  document.querySelectorAll('.btn-room').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const card = e.currentTarget.closest('.room-card');
+      if(!card) return;
+      const room = {
+        name: card.querySelector('.room-name')?.textContent?.trim() || 'Habitación',
+        price: Number((card.querySelector('.room-price')?.textContent || '').replace(/[^\d.]/g,'')) || 120,
+        img: card.querySelector('img')?.src || ''
+      };
+      saveSelectedRoom(room);
+    });
+  });
+
+  document.querySelectorAll('a[href="reservas.html"].btn-gold').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const firstRoom = { id:1, name:'Suite Estándar', price:120, img:'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=700&q=80&fit=crop' };
+      saveSelectedRoom(firstRoom);
+    });
+  });
+
+</script>
+</body>
+</html>

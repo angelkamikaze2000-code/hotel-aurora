@@ -1,0 +1,1 @@
+web: python seed_rooms.py && gunicorn run_server:app --bind 0.0.0.0:$PORT

@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Aurora – Reservas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream:      #f5f0e8;
+      --cream-dim:  #c9bfad;
+      --gold:       #b8996a;
+      --gold-light: #d4b98a;
+      --gold-dim:   rgba(184,153,106,0.25);
+      --dark:       #12100d;
+      --dark-card:  rgba(20,17,12,0.88);
+      --text-muted: #8a7d6b;
+      --border:     rgba(184,153,106,0.22);
+      --error:      #c0614a;
+      --success:    #5a8a6a;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--cream);overflow-x:hidden;}
+
+    /* CURSOR */
+    .cursor{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .15s;}
+    .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(184,153,106,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);}
+
+    /* PARTICLES */
+    .particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .particle{position:absolute;background:var(--gold);border-radius:50%;opacity:0;animation:pRise var(--dur,9s) ease-in infinite var(--delay,0s);left:var(--x,50%);}
+    @keyframes pRise{0%{transform:translateY(100vh) scale(0);opacity:0;}8%{opacity:.4;}92%{opacity:.15;}100%{transform:translateY(-40px) scale(1.4);opacity:0;}}
+
+    /* GRAIN */
+    .grain{position:fixed;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:180px 180px;opacity:.3;pointer-events:none;z-index:1;animation:grainAnim .14s steps(1) infinite;}
+    @keyframes grainAnim{0%{transform:translate(0,0);}14%{transform:translate(-2%,-3%);}28%{transform:translate(3%,1%);}42%{transform:translate(-1%,4%);}57%{transform:translate(4%,-1%);}71%{transform:translate(-3%,2%);}85%{transform:translate(1%,-4%);}}
+
+    /* ORB */
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;mix-blend-mode:screen;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(184,153,106,.12) 0%,transparent 70%);top:-100px;left:-100px;animation:orbF1 16s ease-in-out infinite;}
+    .orb-2{width:400px;height:400px;background:radial-gradient(circle,rgba(184,153,106,.08) 0%,transparent 70%);bottom:-80px;right:-80px;animation:orbF2 20s ease-in-out infinite;}
+    @keyframes orbF1{0%,100%{transform:translate(0,0);}50%{transform:translate(60px,80px);}}
+    @keyframes orbF2{0%,100%{transform:translate(0,0);}50%{transform:translate(-70px,-60px);}}
+
+    /* NAVBAR */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;background:rgba(12,10,8,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:.2em;text-transform:uppercase;color:var(--cream);text-decoration:none;display:flex;align-items:center;gap:.6rem;}
+    .nav-logo span{color:var(--gold-light);font-style:italic;}
+    .nav-diamond{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);animation:dPulse 3s ease-in-out infinite;}
+    @keyframes dPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,153,106,0);}50%{box-shadow:0 0 8px 3px rgba(184,153,106,.5);}}
+    .nav-links{display:flex;align-items:center;gap:2rem;}
+    .nav-links a{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color .25s;position:relative;}
+    .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s cubic-bezier(.22,1,.36,1);}
+    .nav-links a:hover,.nav-links a.active{color:var(--cream);}
+    .nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
+    .nav-cta{padding:.5rem 1.4rem;border:1px solid var(--gold-dim);border-radius:2px;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-light);text-decoration:none;transition:background .25s,color .25s;}
+    .nav-cta:hover{background:var(--gold);color:var(--dark);}
+    .nav-burger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+    .nav-burger span{width:24px;height:1px;background:var(--cream);display:block;}
+    .mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:rgba(12,10,8,.97);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:2rem;}
+    .mobile-menu.open{display:flex;animation:fadeIn .3s ease both;}
+    .mobile-menu a{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:.15em;text-transform:uppercase;color:var(--cream);text-decoration:none;}
+    .mobile-menu a:hover{color:var(--gold-light);}
+    .menu-close{position:absolute;top:1.5rem;right:2rem;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;}
+
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+    /* PAGE LAYOUT */
+    .page{padding-top:73px;min-height:100vh;position:relative;z-index:2;}
+
+    /* PAGE HERO */
+    .page-hero{
+      position:relative;height:42vh;min-height:280px;
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .page-hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1600&q=80&fit=crop');background-size:cover;background-position:center;animation:slowZoom 18s ease-in-out infinite alternate;}
+    @keyframes slowZoom{from{transform:scale(1);}to{transform:scale(1.05);}}
+    .page-hero-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(8,7,5,.85),rgba(18,16,13,.7),rgba(14,12,9,.88));}
+    .page-hero-content{position:relative;z-index:2;text-align:center;padding:0 1.5rem;}
+    .page-hero-eyebrow{font-size:.62rem;letter-spacing:.45em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;display:flex;align-items:center;justify-content:center;gap:.75rem;animation:fadeUp .7s .1s both;}
+    .page-hero-eyebrow::before,.page-hero-eyebrow::after{content:'';height:1px;width:32px;}
+    .page-hero-eyebrow::before{background:linear-gradient(to right,transparent,var(--gold));}
+    .page-hero-eyebrow::after{background:linear-gradient(to left,transparent,var(--gold));}
+    .page-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,6vw,4.5rem);font-weight:300;letter-spacing:.06em;animation:fadeUp .8s .2s both;}
+    .page-hero h1 em{font-style:italic;color:var(--gold-light);}
+
+    /* STEPS INDICATOR */
+    .steps-bar{
+      position:relative;z-index:2;
+      background:rgba(12,10,8,.9);backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      padding:1.1rem 3rem;
+      display:flex;align-items:center;justify-content:center;gap:0;
+    }
+    .step-item{display:flex;align-items:center;gap:.6rem;}
+    .step-num{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:500;color:var(--text-muted);transition:border-color .3s,background .3s,color .3s;flex-shrink:0;}
+    .step-label{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);transition:color .3s;}
+    .step-connector{width:60px;height:1px;background:var(--border);margin:0 .75rem;flex-shrink:0;}
+    .step-item.active .step-num{border-color:var(--gold);background:rgba(184,153,106,.12);color:var(--gold-light);}
+    .step-item.active .step-label{color:var(--cream);}
+    .step-item.done .step-num{border-color:var(--gold);background:var(--gold);color:var(--dark);}
+    .step-item.done .step-label{color:var(--gold-light);}
+
+    /* MAIN CONTENT */
+    .booking-layout{
+      display:grid;grid-template-columns:1fr 380px;
+      gap:2rem;max-width:1200px;margin:0 auto;
+      padding:3rem;
+    }
+    .booking-layout.success-mode{
+      display:flex;align-items:center;justify-content:center;
+      min-height:72vh;
+    }
+
+    /* FORM CARD */
+    .form-card{
+      background:var(--dark-card);border:1px solid var(--border);border-radius:4px;
+      overflow:hidden;
+    }
+    .form-card-header{
+      padding:1.5rem 2rem;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:1rem;
+    }
+    .form-card-icon{
+      width:38px;height:38px;border-radius:50%;
+      border:1px solid var(--gold-dim);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--gold);flex-shrink:0;
+    }
+    .form-card-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--cream);}
+    .form-card-sub{font-size:.72rem;color:var(--text-muted);margin-top:.15rem;}
+    .form-card-body{padding:2rem;}
+
+    /* STEP PANELS */
+    .step-panel{display:none;}
+    .step-panel.active{display:block;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+
+    /* FORM ELEMENTS */
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+    .field{margin-bottom:1.4rem;position:relative;}
+    .field label{display:block;font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.45rem;transition:color .2s;}
+    .field:focus-within label{color:var(--gold-light);}
+    .field input,.field select,.field textarea{
+      width:100%;background:rgba(255,255,255,.04);
+      border:1px solid var(--border);border-radius:2px;
+      padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;
+      color:var(--cream);outline:none;
+      transition:border-color .25s,background .25s,box-shadow .25s,transform .15s;
+    }
+    .field input::placeholder,.field textarea::placeholder{color:rgba(138,125,107,.4);}
+    .field input:focus,.field select:focus,.field textarea:focus{
+      border-color:var(--gold);background:rgba(184,153,106,.05);
+      box-shadow:0 0 0 3px rgba(184,153,106,.08);
+      transform:translateY(-1px);
+    }
+    .field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a7d6b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - 1rem) center;}
+    .field select option{background:var(--dark);color:var(--cream);}
+    .field textarea{resize:vertical;min-height:90px;}
+    .field input.err,.field select.err{border-color:var(--error)!important;}
+    .field-error{font-size:.65rem;color:var(--error);margin-top:.3rem;display:none;animation:errIn .2s ease both;}
+    .field-error.show{display:block;}
+    @keyframes errIn{from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:translateX(0);}}
+
+    /* DATE PICKER PAIR */
+    .date-pair{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+
+    /* ROOM SELECTOR */
+    .room-options{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:1.4rem;}
+    .room-option{border:1px solid var(--border);border-radius:3px;padding:1rem;cursor:pointer;transition:border-color .25s,background .25s;position:relative;}
+    .room-option:hover{border-color:rgba(184,153,106,.4);background:rgba(184,153,106,.04);}
+    .room-option.selected{border-color:var(--gold);background:rgba(184,153,106,.08);}
+    .room-option input[type=radio]{position:absolute;opacity:0;pointer-events:none;}
+    .room-option-img{aspect-ratio:16/9;border-radius:2px;overflow:hidden;margin-bottom:.65rem;}
+    .room-option-img img{width:100%;height:100%;object-fit:cover;display:block;}
+    .room-option-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;color:var(--cream);margin-bottom:.2rem;}
+    .room-option-price{font-size:.72rem;color:var(--gold-light);}
+    .room-option-check{position:absolute;top:.6rem;right:.6rem;width:20px;height:20px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;}
+    .room-option.selected .room-option-check{border-color:var(--gold);background:var(--gold);color:var(--dark);}
+
+    /* GUESTS COUNTER */
+    .guests-row{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;border:1px solid var(--border);border-radius:2px;margin-bottom:1rem;background:rgba(255,255,255,.03);}
+    .guests-label{font-size:.82rem;color:var(--cream);}
+    .guests-label small{display:block;font-size:.65rem;color:var(--text-muted);margin-top:.1rem;}
+    .guests-ctrl{display:flex;align-items:center;gap:.75rem;}
+    .guests-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--cream);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;}
+    .guests-btn:hover{border-color:var(--gold);background:rgba(184,153,106,.08);}
+    .guests-btn:disabled{opacity:.3;cursor:not-allowed;}
+    .guests-count{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--cream);min-width:20px;text-align:center;}
+
+    /* SERVICES */
+    .services-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.4rem;}
+    .service-toggle{border:1px solid var(--border);border-radius:2px;padding:.9rem 1rem;cursor:pointer;display:flex;align-items:center;gap:.75rem;transition:border-color .25s,background .25s;}
+    .service-toggle:hover{border-color:rgba(184,153,106,.4);}
+    .service-toggle.selected{border-color:var(--gold);background:rgba(184,153,106,.07);}
+    .service-toggle input{display:none;}
+    .service-check{width:16px;height:16px;border-radius:2px;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;}
+    .service-toggle.selected .service-check{border-color:var(--gold);background:var(--gold);color:var(--dark);}
+    .service-info{}
+    .service-name{font-size:.75rem;color:var(--cream);font-weight:500;}
+    .service-price{font-size:.65rem;color:var(--gold-light);}
+
+    /* FORM ACTIONS */
+    .form-actions{display:flex;align-items:center;justify-content:space-between;padding-top:1.5rem;border-top:1px solid var(--border);margin-top:.5rem;}
+    .btn-back{padding:.7rem 1.6rem;background:transparent;border:1px solid var(--border);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);cursor:pointer;transition:border-color .2s,color .2s;}
+    .btn-back:hover{border-color:var(--gold-dim);color:var(--cream);}
+    .btn-next{padding:.75rem 2rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.68rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--dark);cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .3s;}
+    .btn-next::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transition:left .45s;}
+    .btn-next:hover::before{left:100%;}
+    .btn-next:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(184,153,106,.35);}
+
+    /* SUMMARY SIDEBAR */
+    .summary-sidebar{}
+    .summary-card{
+      background:var(--dark-card);border:1px solid var(--border);border-radius:4px;
+      overflow:hidden;position:sticky;top:90px;
+    }
+    .summary-img{aspect-ratio:16/9;overflow:hidden;position:relative;}
+    .summary-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease;}
+    .summary-card:hover .summary-img img{transform:scale(1.04);}
+    .summary-img-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(12,10,8,.6));}
+    .summary-body{padding:1.5rem;}
+    .summary-eyebrow{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem;}
+    .summary-room-name{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:400;color:var(--cream);margin-bottom:1rem;}
+    .summary-divider{height:1px;background:var(--border);margin:1rem 0;}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem;}
+    .summary-row .lbl{font-size:.72rem;color:var(--text-muted);}
+    .summary-row .val{font-size:.78rem;color:var(--cream);}
+    .summary-row.total .lbl{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--cream);}
+    .summary-row.total .val{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold-light);}
+    .summary-note{font-size:.65rem;color:var(--text-muted);line-height:1.5;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+    .summary-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem;}
+    .summary-badge{padding:.2rem .6rem;border:1px solid var(--border);border-radius:2px;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+
+    /* SUCCESS SCREEN */
+    .success-screen{
+      display:none;text-align:center;
+      padding:4rem 2rem;max-width:560px;margin:0 auto;
+      animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    .success-screen.show{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:72vh;
+    }
+    .success-icon-wrap{
+      width:72px;height:72px;border-radius:50%;
+      border:1px solid var(--gold);
+      display:flex;align-items:center;justify-content:center;
+      margin:0 auto 1.5rem;color:var(--gold);
+      animation:iconRing 2.5s ease-in-out infinite;
+    }
+    @keyframes iconRing{0%,100%{box-shadow:0 0 0 0 rgba(184,153,106,.4);}50%{box-shadow:0 0 0 14px rgba(184,153,106,0);}}
+    .success-screen h2{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:var(--cream);margin-bottom:.5rem;}
+    .success-screen p{font-size:.85rem;color:var(--text-muted);line-height:1.7;margin-bottom:2rem;}
+    .success-code{display:inline-block;padding:.6rem 1.4rem;border:1px solid var(--gold-dim);border-radius:2px;font-family:'Cormorant Garamond',serif;font-size:1.3rem;letter-spacing:.2em;color:var(--gold-light);margin-bottom:2rem;}
+    .success-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+    .btn-gold{padding:.85rem 2rem;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--dark);cursor:pointer;text-decoration:none;display:inline-block;transition:transform .2s,box-shadow .3s;}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(184,153,106,.35);}
+    .btn-outline{padding:.85rem 2rem;background:transparent;border:1px solid var(--border);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cream-dim);cursor:pointer;text-decoration:none;display:inline-block;transition:border-color .2s,color .2s;}
+    .btn-outline:hover{border-color:var(--gold);color:var(--cream);}
+
+    /* RESPONSIVE */
+    @media(max-width:1024px){.booking-layout{grid-template-columns:1fr;padding:2rem 1.5rem;}.summary-card{position:static;}.steps-bar{padding:1rem 1.5rem;}.step-connector{width:30px;}.step-label{display:none;}}
+    @media(max-width:768px){nav{padding:1rem 1.5rem;}.nav-links{display:none;}.nav-burger{display:flex;}.field-row,.date-pair,.room-options,.services-grid{grid-template-columns:1fr;}.booking-layout{padding:1.5rem 1rem;}.form-card-body{padding:1.25rem;}}
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="particles" id="particles"></div>
+<div class="grain"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="index.html" class="nav-logo"><div class="nav-diamond"></div>Hotel <span>Aurora</span></a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="habitaciones.html">Habitaciones</a>
+    <a href="reservas.html" class="active">Reservas</a>
+    <a href="anuncios.html">Anuncios</a>
+    <a href="auth.html" class="nav-cta">Iniciar Sesión</a>
+  </div>
+  <button class="nav-burger" id="burgerBtn"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="menu-close" id="menuClose">✕</button>
+  <a href="index.html"        onclick="this.closest('.mobile-menu').classList.remove('open')">Inicio</a>
+  <a href="habitaciones.html" onclick="this.closest('.mobile-menu').classList.remove('open')">Habitaciones</a>
+  <a href="reservas.html"     onclick="this.closest('.mobile-menu').classList.remove('open')">Reservas</a>
+  <a href="anuncios.html"     onclick="this.closest('.mobile-menu').classList.remove('open')">Anuncios</a>
+  <a href="auth.html"         onclick="this.closest('.mobile-menu').classList.remove('open')">Iniciar Sesión</a>
+</div>
+
+<div class="page">
+  <!-- PAGE HERO -->
+  <section class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-content">
+      <div class="page-hero-eyebrow">Hotel Aurora — Reservaciones</div>
+      <h1>Reserve su <em>estancia</em></h1>
+    </div>
+  </section>
+
+  <!-- STEPS BAR -->
+  <div class="steps-bar" id="stepsBar">
+    <div class="step-item active" id="step-ind-1">
+      <div class="step-num" id="step-num-1">1</div>
+      <div class="step-label">Fechas & Habitación</div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item" id="step-ind-2">
+      <div class="step-num" id="step-num-2">2</div>
+      <div class="step-label">Sus datos</div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item" id="step-ind-3">
+      <div class="step-num" id="step-num-3">3</div>
+      <div class="step-label">Confirmación</div>
+    </div>
+  </div>
+
+  <!-- BOOKING LAYOUT -->
+  <div class="booking-layout" id="bookingLayout">
+
+    <!-- LEFT: FORM -->
+    <div>
+      <!-- STEP 1 -->
+      <div class="form-card" id="formCard1">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="form-card-title">Fechas de estancia</div>
+            <div class="form-card-sub">Seleccione sus fechas de llegada y salida</div>
+          </div>
+        </div>
+        <div class="form-card-body">
+          <div class="step-panel active" id="panel1">
+
+            <!-- Dates -->
+            <div class="date-pair">
+              <div class="field">
+                <label for="checkin">Check-in</label>
+                <input type="date" id="checkin" onchange="updateSummary()"/>
+                <div class="field-error" id="err-checkin">Seleccione una fecha de llegada.</div>
+              </div>
+              <div class="field">
+                <label for="checkout">Check-out</label>
+                <input type="date" id="checkout" onchange="updateSummary()"/>
+                <div class="field-error" id="err-checkout">Seleccione una fecha de salida.</div>
+              </div>
+            </div>
+
+            <!-- Guests -->
+            <div class="field">
+              <label>Huéspedes</label>
+              <div class="guests-row">
+                <div class="guests-label">Adultos<small>Mayores de 12 años</small></div>
+                <div class="guests-ctrl">
+                  <button class="guests-btn" onclick="changeGuests('adults',-1)" id="btn-adults-dec">−</button>
+                  <div class="guests-count" id="adults-count">2</div>
+                  <button class="guests-btn" onclick="changeGuests('adults',1)">+</button>
+                </div>
+              </div>
+              <div class="guests-row">
+                <div class="guests-label">Niños<small>De 2 a 12 años</small></div>
+                <div class="guests-ctrl">
+                  <button class="guests-btn" onclick="changeGuests('children',-1)" id="btn-children-dec" disabled>−</button>
+                  <div class="guests-count" id="children-count">0</div>
+                  <button class="guests-btn" onclick="changeGuests('children',1)">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Room selection -->
+            <div class="field">
+              <label>Seleccione su habitación</label>
+              <div class="room-options" id="roomOptions">
+                <div class="room-option selected" onclick="selectRoom(this,'Suite Estándar',120,'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80&fit=crop')">
+                  <input type="radio" name="room" value="estandar" checked/>
+                  <div class="room-option-img"><img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=300&q=70&fit=crop" alt="Suite Estándar"/></div>
+                  <div class="room-option-name">Suite Estándar</div>
+                  <div class="room-option-price">$120 / noche</div>
+                  <div class="room-option-check">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+                <div class="room-option" onclick="selectRoom(this,'Suite Deluxe',210,'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80&fit=crop')">
+                  <input type="radio" name="room" value="deluxe"/>
+                  <div class="room-option-img"><img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=300&q=70&fit=crop" alt="Suite Deluxe"/></div>
+                  <div class="room-option-name">Suite Deluxe</div>
+                  <div class="room-option-price">$210 / noche</div>
+                  <div class="room-option-check">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+                <div class="room-option" onclick="selectRoom(this,'Suite Aurora',310,'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80&fit=crop')">
+                  <input type="radio" name="room" value="suite"/>
+                  <div class="room-option-img"><img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&q=70&fit=crop" alt="Suite Aurora"/></div>
+                  <div class="room-option-name">Suite Aurora</div>
+                  <div class="room-option-price">$310 / noche</div>
+                  <div class="room-option-check">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+                <div class="room-option" onclick="selectRoom(this,'Suite Presidencial',480,'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=600&q=80&fit=crop')">
+                  <input type="radio" name="room" value="presidencial"/>
+                  <div class="room-option-img"><img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=300&q=70&fit=crop" alt="Suite Presidencial"/></div>
+                  <div class="room-option-name">Suite Presidencial</div>
+                  <div class="room-option-price">$480 / noche</div>
+                  <div class="room-option-check">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Services -->
+            <div class="field">
+              <label>Servicios adicionales</label>
+              <div class="services-grid">
+                <div class="service-toggle" onclick="toggleService(this,25,'Desayuno incluido')">
+                  <input type="checkbox"/>
+                  <div class="service-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="service-info"><div class="service-name">Desayuno</div><div class="service-price">+$25 / persona</div></div>
+                </div>
+                <div class="service-toggle" onclick="toggleService(this,60,'Traslado aeropuerto')">
+                  <input type="checkbox"/>
+                  <div class="service-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="service-info"><div class="service-name">Traslado aeropuerto</div><div class="service-price">+$60 por viaje</div></div>
+                </div>
+                <div class="service-toggle" onclick="toggleService(this,80,'Acceso Spa')">
+                  <input type="checkbox"/>
+                  <div class="service-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="service-info"><div class="service-name">Acceso Spa</div><div class="service-price">+$80 por día</div></div>
+                </div>
+                <div class="service-toggle" onclick="toggleService(this,45,'Cena romántica')">
+                  <input type="checkbox"/>
+                  <div class="service-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="service-info"><div class="service-name">Cena romántica</div><div class="service-price">+$45 por persona</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="requests">Solicitudes especiales</label>
+              <textarea id="requests" placeholder="Alergias, preferencias, ocasiones especiales..."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <span></span>
+              <button class="btn-next" onclick="goToStep(2)">Continuar
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:.4rem;vertical-align:middle"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="form-card" id="formCard2" style="display:none;margin-top:1.5rem;">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="form-card-title">Datos del huésped</div>
+            <div class="form-card-sub">Complete su información de contacto</div>
+          </div>
+        </div>
+        <div class="form-card-body">
+          <div class="step-panel active" id="panel2">
+            <div class="field-row">
+              <div class="field">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" placeholder="Juan"/>
+                <div class="field-error" id="err-nombre">Campo requerido.</div>
+              </div>
+              <div class="field">
+                <label for="apellido">Apellido</label>
+                <input type="text" id="apellido" placeholder="Pérez"/>
+                <div class="field-error" id="err-apellido">Campo requerido.</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" placeholder="juan@correo.com"/>
+                <div class="field-error" id="err-email">Ingrese un correo válido.</div>
+              </div>
+              <div class="field">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" placeholder="+1 (809) 000-0000"/>
+                <div class="field-error" id="err-tel">Campo requerido.</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="pais">País de origen</label>
+                <select id="pais">
+                  <option value="">Seleccionar...</option>
+                  <option value="do" selected>República Dominicana</option>
+                  <option value="us">Estados Unidos</option>
+                  <option value="es">España</option>
+                  <option value="mx">México</option>
+                  <option value="co">Colombia</option>
+                  <option value="pr">Puerto Rico</option>
+                  <option value="other">Otro</option>
+                </select>
+                <div class="field-error" id="err-pais">Seleccione su país.</div>
+              </div>
+              <div class="field">
+                <label for="documento">Documento de identidad</label>
+                <input type="text" id="documento" placeholder="Pasaporte o cédula"/>
+                <div class="field-error" id="err-doc">Campo requerido.</div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="motivo">Motivo del viaje</label>
+              <select id="motivo">
+                <option value="">Seleccionar...</option>
+                <option value="leisure">Turismo / Vacaciones</option>
+                <option value="business">Negocios</option>
+                <option value="honeymoon">Luna de miel</option>
+                <option value="family">Viaje familiar</option>
+                <option value="event">Evento especial</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn-back" onclick="goToStep(1)">← Atrás</button>
+              <button class="btn-next" onclick="goToStep(3)">Revisar reserva
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:.4rem;vertical-align:middle"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: REVIEW -->
+      <div class="form-card" id="formCard3" style="display:none;margin-top:1.5rem;">
+        <div class="form-card-header">
+          <div class="form-card-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <div>
+            <div class="form-card-title">Confirmar reserva</div>
+            <div class="form-card-sub">Revise los detalles antes de confirmar</div>
+          </div>
+        </div>
+        <div class="form-card-body">
+          <div class="step-panel active" id="panel3">
+            <div id="review-content" style="margin-bottom:1.5rem;"></div>
+            <div style="padding:1rem;border:1px solid var(--gold-dim);border-radius:2px;background:rgba(184,153,106,.04);margin-bottom:1.5rem;">
+              <p style="font-size:.75rem;color:var(--text-muted);line-height:1.6;">
+                Al confirmar acepta los <a href="#" style="color:var(--gold-light);">Términos y Condiciones</a> del Hotel Aurora. 
+                Cancelación gratuita hasta 48 horas antes del check-in. El cargo se realizará al llegar al hotel.
+              </p>
+            </div>
+            <div class="form-actions">
+              <button class="btn-back" onclick="goToStep(2)">← Atrás</button>
+              <button class="btn-next" onclick="confirmBooking()">Confirmar reserva ✓</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>¡Reserva confirmada!</h2>
+        <p>Hemos recibido su reserva correctamente. En breve recibirá un correo de confirmación con todos los detalles de su estancia.</p>
+        <div class="success-code" id="booking-code">AUR-000000</div>
+        <p style="font-size:.75rem;color:var(--text-muted);margin-bottom:2rem;">Guarde este código de confirmación para sus registros.</p>
+        <div class="success-actions">
+          <a href="index.html" class="btn-gold">Volver al inicio</a>
+          <a href="habitaciones.html" class="btn-outline">Ver habitaciones</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: SUMMARY -->
+    <div class="summary-sidebar" id="summarySidebar">
+      <div class="summary-card">
+        <div class="summary-img">
+          <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80&fit=crop" alt="Habitación seleccionada" id="summary-img"/>
+          <div class="summary-img-overlay"></div>
+        </div>
+        <div class="summary-body">
+          <div class="summary-eyebrow">Resumen de reserva</div>
+          <div class="summary-room-name" id="summary-room-name">Suite Estándar</div>
+          <div class="summary-divider"></div>
+          <div class="summary-row">
+            <span class="lbl">Check-in</span>
+            <span class="val" id="sum-checkin">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="lbl">Check-out</span>
+            <span class="val" id="sum-checkout">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="lbl">Noches</span>
+            <span class="val" id="sum-nights">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="lbl">Huéspedes</span>
+            <span class="val" id="sum-guests">2 adultos</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row">
+            <span class="lbl">Habitación</span>
+            <span class="val" id="sum-room-price">$120 / noche</span>
+          </div>
+          <div id="sum-services-rows"></div>
+          <div class="summary-row" id="sum-taxes-row" style="display:none;">
+            <span class="lbl">Impuestos (18%)</span>
+            <span class="val" id="sum-taxes">—</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row total">
+            <span class="lbl">Total estimado</span>
+            <span class="val" id="sum-total">—</span>
+          </div>
+          <div class="summary-badges">
+            <span class="summary-badge">Cancelación gratuita</span>
+            <span class="summary-badge">Sin cargo previo</span>
+            <span class="summary-badge">Confirmación inmediata</span>
+          </div>
+          <div class="summary-note">
+            El total es estimado. El precio final será confirmado al momento del check-in. Los impuestos pueden variar.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /booking-layout -->
+</div><!-- /page -->
+
+<script src="config.js"></script>
+<script>
+  /* ── STATE ── */
+  let state = {
+    room: { name:'Suite Estándar', price:120, img:'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80&fit=crop' },
+    adults: 2, children: 0,
+    services: [],
+    currentStep: 1
+  };
+
+  /* ── CURSOR ── */
+  const cur=document.getElementById('cursor'), ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+  (function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop);})();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2.5)';ring.style.transform='translate(-50%,-50%) scale(1.5)';});
+    el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';ring.style.transform='translate(-50%,-50%) scale(1)';});
+  });
+
+  /* ── PARTICLES ── */
+  (function(){const c=document.getElementById('particles');for(let i=0;i<18;i++){const p=document.createElement('div');p.className='particle';p.style.cssText=`--x:${(Math.random()*100).toFixed(1)}%;--dur:${(8+Math.random()*10).toFixed(1)}s;--delay:-${(Math.random()*14).toFixed(1)}s;width:${Math.random()>.55?3:2}px;height:${Math.random()>.55?3:2}px;`;c.appendChild(p);}})();
+
+  /* ── MOBILE MENU ── */
+  document.getElementById('burgerBtn').addEventListener('click',()=>document.getElementById('mobileMenu').classList.add('open'));
+  document.getElementById('menuClose').addEventListener('click', ()=>document.getElementById('mobileMenu').classList.remove('open'));
+
+  /* ── SET MIN DATES ── */
+  const today = new Date();
+  const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+  const fmt = d => d.toISOString().split('T')[0];
+  document.getElementById('checkin').min  = fmt(today);
+  document.getElementById('checkout').min = fmt(tomorrow);
+  document.getElementById('checkin').value  = fmt(today);
+  document.getElementById('checkout').value = fmt(tomorrow);
+  updateSummary();
+
+  /* ── ROOM SELECT ── */
+  function selectRoom(el, name, price, img){
+    document.querySelectorAll('.room-option').forEach(r=>r.classList.remove('selected'));
+    el.classList.add('selected');
+    state.room = { name, price, img };
+    document.getElementById('summary-img').src = img;
+    document.getElementById('summary-room-name').textContent = name;
+    document.getElementById('sum-room-price').textContent = '$'+price+' / noche';
+    updateSummary();
+  }
+
+  /* ── GUESTS ── */
+  function changeGuests(type, delta){
+    if(type==='adults'){
+      state.adults = Math.max(1, Math.min(6, state.adults+delta));
+      document.getElementById('adults-count').textContent = state.adults;
+      document.getElementById('btn-adults-dec').disabled = state.adults<=1;
+    } else {
+      state.children = Math.max(0, Math.min(4, state.children+delta));
+      document.getElementById('children-count').textContent = state.children;
+      document.getElementById('btn-children-dec').disabled = state.children<=0;
+    }
+    document.getElementById('sum-guests').textContent = state.adults+' adulto'+(state.adults>1?'s':'')+(state.children?' + '+state.children+' niño'+(state.children>1?'s':''):'');
+    updateSummary();
+  }
+
+  /* ── SERVICES ── */
+  function toggleService(el, price, name){
+    el.classList.toggle('selected');
+    const idx = state.services.findIndex(s=>s.name===name);
+    if(idx>=0) state.services.splice(idx,1);
+    else state.services.push({name, price});
+    updateSummary();
+  }
+
+  /* ── SUMMARY ── */
+  function updateSummary(){
+    const ci = document.getElementById('checkin').value;
+    const co = document.getElementById('checkout').value;
+    const sumCI  = document.getElementById('sum-checkin');
+    const sumCO  = document.getElementById('sum-checkout');
+    const sumN   = document.getElementById('sum-nights');
+    const sumT   = document.getElementById('sum-total');
+    const sumTax = document.getElementById('sum-taxes');
+
+    if(ci){ sumCI.textContent = new Date(ci+'T12:00').toLocaleDateString('es-DO',{day:'2-digit',month:'short',year:'numeric'}); }
+    if(co){ sumCO.textContent = new Date(co+'T12:00').toLocaleDateString('es-DO',{day:'2-digit',month:'short',year:'numeric'}); }
+
+    let nights = 0;
+    if(ci && co){
+      nights = Math.max(0, (new Date(co)-new Date(ci))/(1000*60*60*24));
+      if(new Date(co)<=new Date(ci)){ document.getElementById('checkout').min = ci; }
+    }
+    sumN.textContent = nights > 0 ? nights+' noche'+(nights>1?'s':'') : '—';
+
+    const roomTotal    = nights * state.room.price;
+    const servicesTotal= state.services.reduce((a,s)=>a+s.price,0);
+    const subtotal     = roomTotal + servicesTotal;
+    const taxes        = Math.round(subtotal * 0.18);
+    const total        = subtotal + taxes;
+
+    // services rows
+    const svcEl = document.getElementById('sum-services-rows');
+    svcEl.innerHTML = state.services.map(s=>
+      `<div class="summary-row"><span class="lbl">${s.name}</span><span class="val">+$${s.price}</span></div>`
+    ).join('');
+
+    if(nights > 0){
+      document.getElementById('sum-taxes-row').style.display='flex';
+      sumTax.textContent = '$'+taxes;
+      sumT.textContent   = '$'+total;
+    } else {
+      document.getElementById('sum-taxes-row').style.display='none';
+      sumT.textContent = '—';
+    }
+  }
+
+  /* ── STEP NAVIGATION ── */
+  function goToStep(step){
+    if(step > state.currentStep && !validateStep(state.currentStep)) return;
+
+    // update indicators
+    for(let i=1;i<=3;i++){
+      const ind = document.getElementById('step-ind-'+i);
+      const num = document.getElementById('step-num-'+i);
+      ind.className = 'step-item';
+      if(i < step){ ind.classList.add('done'); num.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'; }
+      else if(i === step){ ind.classList.add('active'); num.textContent=i; }
+      else { num.textContent=i; }
+    }
+
+    // show/hide form cards
+    [1,2,3].forEach(n=>{
+      const c = document.getElementById('formCard'+n);
+      if(c) c.style.display = n===step ? 'block' : 'none';
+    });
+
+    // build review content
+    if(step===3) buildReview();
+
+    state.currentStep = step;
+    window.scrollTo({top: document.getElementById('stepsBar').offsetTop - 80, behavior:'smooth'});
+  }
+
+  /* ── VALIDATE ── */
+  function validateStep(step){
+    let ok = true;
+    function err(inputId, errId, condition){
+      const inp = document.getElementById(inputId);
+      const e   = document.getElementById(errId);
+      if(condition){ inp.classList.add('err'); e.classList.add('show'); ok=false; }
+      else { inp.classList.remove('err'); e.classList.remove('show'); }
+    }
+    if(step===1){
+      const ci=document.getElementById('checkin').value;
+      const co=document.getElementById('checkout').value;
+      err('checkin','err-checkin', !ci);
+      err('checkout','err-checkout', !co || (ci && new Date(co)<=new Date(ci)));
+    }
+    if(step===2){
+      err('nombre',   'err-nombre',  !document.getElementById('nombre').value.trim());
+      err('apellido', 'err-apellido',!document.getElementById('apellido').value.trim());
+      err('email',    'err-email',   !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value));
+      err('telefono', 'err-tel',     !document.getElementById('telefono').value.trim());
+      err('pais',     'err-pais',    !document.getElementById('pais').value);
+      err('documento','err-doc',     !document.getElementById('documento').value.trim());
+    }
+    return ok;
+  }
+
+  /* ── BUILD REVIEW ── */
+  function buildReview(){
+    const ci   = document.getElementById('checkin').value;
+    const co   = document.getElementById('checkout').value;
+    const nights = Math.max(0,(new Date(co)-new Date(ci))/(1000*60*60*24));
+    const fmtDate = v => new Date(v+'T12:00').toLocaleDateString('es-DO',{day:'2-digit',month:'long',year:'numeric'});
+    const nombre = document.getElementById('nombre').value+' '+document.getElementById('apellido').value;
+    const email  = document.getElementById('email').value;
+    const tel    = document.getElementById('telefono').value;
+    const subtotal = nights*state.room.price + state.services.reduce((a,s)=>a+s.price,0);
+    const total    = Math.round(subtotal*1.18);
+
+    document.getElementById('review-content').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div style="padding:1rem;border:1px solid var(--border);border-radius:2px;">
+          <div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;">Estancia</div>
+          <div style="font-size:.82rem;color:var(--cream);margin-bottom:.3rem;"><strong>${state.room.name}</strong></div>
+          <div style="font-size:.75rem;color:var(--text-muted);">Check-in: ${fmtDate(ci)}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);">Check-out: ${fmtDate(co)}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:.3rem;">${nights} noche${nights>1?'s':''} · ${state.adults} adulto${state.adults>1?'s':''}${state.children?' + '+state.children+' niño'+( state.children>1?'s':''):''}</div>
+        </div>
+        <div style="padding:1rem;border:1px solid var(--border);border-radius:2px;">
+          <div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;">Huésped</div>
+          <div style="font-size:.82rem;color:var(--cream);margin-bottom:.3rem;"><strong>${nombre}</strong></div>
+          <div style="font-size:.75rem;color:var(--text-muted);">${email}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);">${tel}</div>
+        </div>
+      </div>
+      ${state.services.length?`<div style="margin-top:1rem;padding:1rem;border:1px solid var(--border);border-radius:2px;"><div style="font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;">Servicios adicionales</div><div style="font-size:.78rem;color:var(--text-muted);">${state.services.map(s=>s.name).join(' · ')}</div></div>`:''}
+      <div style="margin-top:1rem;padding:1rem;border:1px solid var(--gold-dim);border-radius:2px;background:rgba(184,153,106,.04);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:.72rem;color:var(--text-muted);">Total estimado (incl. impuestos)</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold-light);">$${total}</div>
+      </div>
+    `;
+  }
+
+  /* ── CONFIRM ── */
+  function confirmBooking(){
+    const code = 'AUR-' + Math.random().toString(36).substr(2,6).toUpperCase();
+    document.getElementById('booking-code').textContent = code;
+    [1,2,3].forEach(n=>{ const c=document.getElementById('formCard'+n); if(c)c.style.display='none'; });
+    document.getElementById('summarySidebar').style.display='none';
+    document.getElementById('stepsBar').style.display='none';
+    document.getElementById('bookingLayout').classList.add('success-mode');
+    for(let i=1;i<=3;i++){
+      document.getElementById('step-ind-'+i).className='step-item done';
+      document.getElementById('step-num-'+i).innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+    }
+    document.getElementById('successScreen').classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  /* ── CLEAR ERR ON INPUT ── */
+  document.querySelectorAll('input,select').forEach(el=>{
+    el.addEventListener('input',()=>{ el.classList.remove('err'); });
+  });
+
+
+  /* ── DEMO BOOKING FLOW ── */
+  const HOTEL_SELECTED_ROOM_KEY = 'hotelAuroraSelectedRoom';
+  const HOTEL_CURRENT_USER_KEY = 'hotelAuroraCurrentUser';
+  const HOTEL_PENDING_BOOKING_KEY = 'hotelAuroraPendingBooking';
+
+  function getStorageJSON(key, fallback=null){
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+    catch { return fallback; }
+  }
+
+  function applySelectedRoomFromStorage(){
+    const room = getStorageJSON(HOTEL_SELECTED_ROOM_KEY);
+    if(!room) return;
+    state.room = room;
+    document.getElementById('summary-img').src = room.img || document.getElementById('summary-img').src;
+    document.getElementById('summary-room-name').textContent = room.name || state.room.name;
+    document.getElementById('sum-room-price').textContent = '$'+room.price+' / noche';
+    const options = [...document.querySelectorAll('.room-option')];
+    const match = options.find(opt => opt.textContent.includes(room.name));
+    if(match){
+      options.forEach(r=>r.classList.remove('selected'));
+      match.classList.add('selected');
+    }
+    updateSummary();
+  }
+
+  function prefillCurrentUser(){
+    const user = getStorageJSON(HOTEL_CURRENT_USER_KEY);
+    if(!user) return;
+    if(document.getElementById('nombre') && !document.getElementById('nombre').value) document.getElementById('nombre').value = user.nombre || '';
+    if(document.getElementById('apellido') && !document.getElementById('apellido').value) document.getElementById('apellido').value = user.apellido || '';
+    if(document.getElementById('email') && !document.getElementById('email').value) document.getElementById('email').value = user.email || '';
+  }
+
+  const _confirmBooking = confirmBooking;
+  confirmBooking = function(){
+    const ci   = document.getElementById('checkin').value;
+    const co   = document.getElementById('checkout').value;
+    const nights = Math.max(1,(new Date(co)-new Date(ci))/(1000*60*60*24));
+    const subtotal = nights*state.room.price + state.services.reduce((a,s)=>a+s.price,0);
+    const tax = Math.round(subtotal*0.18*100)/100;
+    const total = Math.round((subtotal + tax)*100)/100;
+    const booking = {
+      code: 'AUR-' + Math.random().toString(36).substr(2,6).toUpperCase(),
+      room: state.room,
+      guests: { adults: state.adults, children: state.children },
+      services: state.services,
+      customer: {
+        nombre: document.getElementById('nombre').value.trim(),
+        apellido: document.getElementById('apellido').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        telefono: document.getElementById('telefono').value.trim(),
+        pais: document.getElementById('pais').value,
+        documento: document.getElementById('documento').value.trim(),
+        solicitudes: document.getElementById('solicitudes')?.value?.trim() || ''
+      },
+      stay: { checkin: ci, checkout: co, nights },
+      pricing: { rate: state.room.price, subtotal, tax, total },
+      createdAt: new Date().toISOString(),
+      status: 'pending_payment'
+    };
+    localStorage.setItem(HOTEL_PENDING_BOOKING_KEY, JSON.stringify(booking));
+    window.location.href = 'pago.html';
+  }
+
+  applySelectedRoomFromStorage();
+  prefillCurrentUser();
+
+  /* BACKEND RESERVATION OVERRIDE */
+  window.HOTEL_API_BASE_URL = window.HOTEL_API_BASE_URL || 'http://127.0.0.1:5000/api';
+
+  async function hotelApi(path, options = {}) {
+    const response = await fetch(window.HOTEL_API_BASE_URL + path, {
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.message || 'No se pudo completar la solicitud.');
+    }
+    return payload;
+  }
+
+  function normalizeRoomFromApi(room) {
+    return {
+      id: room.id,
+      name: room.name,
+      price: Number(room.price_per_night || 0),
+      img: room.featured_image || 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80&fit=crop',
+      capacity: Number(room.capacity || 1),
+      available: room.is_available !== false
+    };
+  }
+
+  function chooseRoom(room, el = null) {
+    if (!room) return;
+    state.room = room;
+    document.querySelectorAll('.room-option').forEach(r=>r.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+    document.getElementById('summary-img').src = room.img;
+    document.getElementById('summary-room-name').textContent = room.name;
+    document.getElementById('sum-room-price').textContent = '$'+room.price+' / noche';
+    localStorage.setItem(HOTEL_SELECTED_ROOM_KEY, JSON.stringify(room));
+    updateSummary();
+  }
+
+  selectRoom = function(el, name, price, img, id = null) {
+    chooseRoom({ id: id || state.room.id || 1, name, price: Number(price), img }, el);
+  }
+
+  async function loadRoomsFromBackend() {
+    const params = new URLSearchParams();
+    const ci = document.getElementById('checkin').value;
+    const co = document.getElementById('checkout').value;
+    if (ci && co && new Date(co) > new Date(ci)) {
+      params.set('check_in', ci);
+      params.set('check_out', co);
+      params.set('available_only', 'true');
+    }
+    const payload = await hotelApi('/rooms' + (params.toString() ? '?' + params.toString() : ''));
+    const rooms = (payload.items || []).map(normalizeRoomFromApi);
+    if (!rooms.length) return;
+
+    const stored = getStorageJSON(HOTEL_SELECTED_ROOM_KEY);
+    const selected = rooms.find(room => room.id === stored?.id || room.name === stored?.name) || rooms[0];
+    const roomOptionsEl = document.getElementById('roomOptions');
+    roomOptionsEl.innerHTML = rooms.map(room => `
+      <div class="room-option ${room.id === selected.id ? 'selected' : ''}" onclick="chooseRoom({id:${room.id},name:'${room.name.replace(/'/g, "\\'")}',price:${room.price},img:'${room.img}'}, this)">
+        <input type="radio" name="room" value="${room.id}" ${room.id === selected.id ? 'checked' : ''}/>
+        <div class="room-option-img"><img src="${room.img}" alt="${room.name}"/></div>
+        <div class="room-option-name">${room.name}</div>
+        <div class="room-option-price">$${room.price} / noche</div>
+        <div class="room-option-check">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+    `).join('');
+    chooseRoom(selected, roomOptionsEl.querySelector('.room-option.selected'));
+  }
+
+  confirmBooking = async function(){
+    if (!validateStep(2)) return;
+    const btn = document.querySelector('#panel3 .btn-next');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Guardando reserva...';
+    const payload = {
+      room_id: state.room.id || 1,
+      check_in: document.getElementById('checkin').value,
+      check_out: document.getElementById('checkout').value,
+      adults: state.adults,
+      children: state.children,
+      first_name: document.getElementById('nombre').value.trim(),
+      last_name: document.getElementById('apellido').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('telefono').value.trim(),
+      country: document.getElementById('pais').value,
+      document_id: document.getElementById('documento').value.trim(),
+      travel_reason: document.getElementById('motivo').value,
+      special_requests: document.getElementById('requests')?.value?.trim() || '',
+      services: state.services
+    };
+
+    try {
+      const result = await hotelApi('/reservations', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      const reservation = result.reservation;
+      localStorage.setItem(HOTEL_PENDING_BOOKING_KEY, JSON.stringify({
+        context_type: 'reservation',
+        reservation_id: reservation.id,
+        reservation,
+        room: reservation.room || state.room,
+        customer: payload,
+        pricing: {
+          subtotal: reservation.subtotal,
+          tax: reservation.taxes,
+          total: reservation.total,
+          rate: reservation.room?.price_per_night || state.room.price
+        },
+        stay: {
+          checkin: reservation.check_in,
+          checkout: reservation.check_out,
+          nights: Math.max(1, (new Date(reservation.check_out)-new Date(reservation.check_in))/(1000*60*60*24))
+        },
+        status: reservation.status
+      }));
+      window.location.href = 'pago.html?context=reserva';
+    } catch (error) {
+      alert(error.message);
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+
+  document.getElementById('checkin').addEventListener('change', () => loadRoomsFromBackend().catch(console.error));
+  document.getElementById('checkout').addEventListener('change', () => loadRoomsFromBackend().catch(console.error));
+  loadRoomsFromBackend().catch(error => console.error(error));
+
+</script>
+</body>
+</html>

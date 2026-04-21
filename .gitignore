@@ -1,0 +1,9 @@
+backend/.env
+backend/.venv/
+backend/.tmp/
+backend/__pycache__/
+backend/app/**/__pycache__/
+backend/instance/
+backend/*.log
+*.pyc
+
